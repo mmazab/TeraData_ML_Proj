@@ -1,25 +1,43 @@
 select
-	c_custkey,
-	c_name,
-	sum(l_extendedprice * (1 - l_discount)) as revenue,
-	c_acctbal,
+	s_acctbal,
+	s_name,
 	n_name,
-	c_address,
-	c_phone
+	p_partkey,
+	p_mfgr,
+	s_address,
+	s_phone,
+	s_comment
 from
-	customer,
-	orders,
-	lineitem,
-	nation
+	part,
+	supplier,
+	partsupp,
+	nation,
+	region
 where
-	c_custkey = o_custkey
-	and l_orderkey = o_orderkey
-group by
-	c_custkey,
-	c_name,
-	c_acctbal,
-	c_phone,
-	n_name,
-	c_address
+	p_partkey = ps_partkey
+	and s_suppkey = ps_suppkey
+	and p_size = 12
+	and p_type like '%NICKEL'
+	and s_nationkey = n_nationkey
+	and n_regionkey = r_regionkey
+	and r_name = 'AFRICA'
+	and ps_supplycost = (
+		select
+			min(ps_supplycost)
+		from
+			partsupp,
+			supplier,
+			nation,
+			region
+		where
+			p_partkey = ps_partkey
+			and s_suppkey = ps_suppkey
+			and s_nationkey = n_nationkey
+			and n_regionkey = r_regionkey
+			and r_name = 'AFRICA'
+	)
 order by
-	revenue;
+	s_acctbal desc,
+	n_name,
+	s_name,
+	p_partkey;

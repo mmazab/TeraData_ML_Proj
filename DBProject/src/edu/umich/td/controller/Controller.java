@@ -1,3 +1,9 @@
+
+/*Author: Mahmoud Azab
+ * Last Updated: November 2014
+ * WorkLoadCreator.java
+ */
+
 package edu.umich.td.controller;
 import java.util.ArrayList;
 
@@ -15,19 +21,31 @@ public class Controller {
 		//7- Collect CPU and I/O usage
 		QueriesPool qpool = new QueriesPool();
 		ArrayList<String> queries = qpool.ReadQueriesFromFile("files/queries.sql");
+		ArrayList<Integer> failedQueries = new ArrayList<Integer>();
 		for(int i=0; i<queries.size(); i++){
 			System.out.println("=========\tProcessing Query #" + i +"\t=========" );
 			QTextFeatureExtractor qtFeatExtractor = new QTextFeatureExtractor();
 			ArrayList<String> featuresList = qtFeatExtractor.ExtractFeatures(queries.get(i));
 			
-			TdDatabase.ExecuteQuery(queries.get(i));
+			int[] CpuIo = {0,0};
+			boolean status = TdDatabase.ExecuteQuery(queries.get(i));
+			
+			if(!status) 
+				failedQueries.add(i+1);
+			else {
+				System.out.println("Collecting CPU and I/O usage ...");
+				//CpuIo =  StatsCollector.CollectCpuIO(queries.get(i));
+				System.err.println("===>\t" + CpuIo[0] + "\t" + CpuIo[1]);
+			}
+			
 			for (String feature : featuresList) {
 				System.out.print(feature+"\t");
 			} 
 			System.out.println("\n");
-			
-			
-			
+		}
+		
+		for (Integer instance : failedQueries) {
+			System.out.println(instance);
 		}
 
 	}

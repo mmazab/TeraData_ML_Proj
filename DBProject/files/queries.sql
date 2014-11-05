@@ -471,6 +471,29 @@ order by
 	avgrevenue;
 
 
+
+
+select
+	o_orderstatus,
+	sum(l_extendedprice * cast ((1 - l_discount) as decimal(18,2)) ) as revenue
+from
+	customer,
+	orders,
+	lineitem,
+	supplier
+where
+	c_custkey = o_custkey
+	and l_orderkey = o_orderkey
+	and l_suppkey = s_suppkey
+group by
+	o_orderstatus
+order by
+	revenue desc;
+
+
+
+
+
 select
 	sum(l_extendedprice * l_discount) as revenue
 from
@@ -561,7 +584,7 @@ from
 	(
 		select
 			extract(year from l_shipdate) as l_year,
-			l_extendedprice * (1 - l_discount) as volume
+			cast (l_extendedprice * (1 - l_discount) as decimal(18,2) ) as volume
 		from
 			supplier,
 			lineitem,
@@ -597,7 +620,7 @@ from
 	(
 		select
 			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) as volume,
+			cast (l_extendedprice * (1 - l_discount) as decimal(18,2)) as volume,
 			n2.n_name as nation
 		from
 			part,
@@ -635,7 +658,7 @@ from
 	(
 		select
 			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) as volume,
+			cast ( l_extendedprice * (1 - l_discount) as decimal(18,2)) as volume,
 			n2.n_name as nation
 		from
 			part,
@@ -669,7 +692,7 @@ from
 	(
 		select
 			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) as volume,
+			cast ( l_extendedprice * (1 - l_discount) as decimal(18,2)) as volume,
 			n2.n_name as nation
 		from
 			part,
@@ -705,7 +728,7 @@ from
 	(
 		select
 			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) as volume,
+			cast (l_extendedprice * (1 - l_discount) as decimal(18,2)) as volume,
 			n2.n_name as nation
 		from
 			part,
@@ -738,7 +761,7 @@ from
 	(
 		select
 			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) as volume,
+			cast ( l_extendedprice * (1 - l_discount) as decimal(18,2)) as volume,
 			n2.n_name as nation
 		from
 			part,
@@ -771,7 +794,7 @@ from
 	(
 		select
 			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) as volume,
+			cast ( l_extendedprice * (1 - l_discount) as decimal(18,2)) as volume,
 			n2.n_name as nation
 		from
 			part,
@@ -810,7 +833,7 @@ from
 		select
 			n_name as nation,
 			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount
+			cast ( l_extendedprice * (1 - l_discount) as decimal(18,2)) - cast ( ps_supplycost * l_quantity as decimal(18,2)) as amount
 		from
 			part,
 			supplier,
@@ -843,7 +866,7 @@ from
 		select
 			n_name as nation,
 			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount
+			cast ( l_extendedprice * (1 - l_discount) as decimal(18,2)) - cast ( ps_supplycost * l_quantity as decimal(18,2)) as amount
 		from
 			part,
 			supplier,
@@ -872,7 +895,7 @@ from
 	(
 		select
 			n_name as nation,
-			l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount
+			cast ( l_extendedprice * (1 - l_discount) as decimal(18,2)) -  cast ( ps_supplycost * l_quantity as decimal(18,2)) as amount
 		from
 			part,
 			supplier,
@@ -896,7 +919,7 @@ order by
 select
 	c_custkey,
 	c_name,
-	sum(l_extendedprice * (1 - l_discount)) as revenue,
+	sum(  cast ( l_extendedprice * (1 - l_discount) as decimal(18,2))  ) as revenue,
 	c_acctbal,
 	n_name,
 	c_address,
@@ -929,7 +952,7 @@ order by
 select
 	c_custkey,
 	c_name,
-	sum(l_extendedprice * (1 - l_discount)) as revenue,
+	sum(  cast ( l_extendedprice * (1 - l_discount) as decimal(18,2)) ) as revenue,
 	c_acctbal,
 	n_name,
 	c_address,
@@ -952,10 +975,14 @@ group by
 order by
 	revenue;
 
+
+
+
+
 select
 	c_custkey,
 	c_name,
-	sum(l_extendedprice * (1 - l_discount)) as revenue,
+	sum( cast (l_extendedprice * (1 - l_discount)  as decimal(18,2)) ) as revenue,
 	c_acctbal,
 	n_name,
 	c_address,
@@ -970,14 +997,26 @@ where
 	and l_orderkey = o_orderkey
 group by
 	c_custkey,
-	c_name
+	c_name,
+	c_acctbal,
+	n_name,
+	c_address,
+	c_phone
 order by
-	c_custkeyf
+	c_custkey;
+
+
+
+
+
+
+
+
 
 select
 	c_custkey,
 	c_name,
-	avg(l_extendedprice * (1 - l_discount)) as revenue,
+	avg( cast (l_extendedprice * (1 - l_discount) as decimal(18,2) )) as revenue,
 	c_acctbal,
 	c_phone
 from
@@ -999,10 +1038,12 @@ order by
 
 
 
+
+
 select
 	c_custkey,
 	c_name,
-	sum(l_extendedprice * (1 - l_discount)) as revenue,
+	sum(cast ( l_extendedprice * (1 - l_discount) as decimal(18,2))  ) as revenue,
 	c_acctbal
 from
 	customer,
@@ -1217,6 +1258,8 @@ order by
 	custdist desc,
 	c_count desc;
 
+
+
 select
 	c_count,
 	count(*) as custdist
@@ -1237,6 +1280,8 @@ group by
 order by
 	custdist desc;
 
+
+
 select
 	c_count,
 	count(*) as custdist
@@ -1253,9 +1298,11 @@ from
 			c_custkey
 	) as c_orders (c_custkey, c_count)
 group by
-	custdist
+	c_count
 order by
 	c_count desc;
+
+
 
 select
 	c_count,
@@ -1277,12 +1324,15 @@ group by
 order by
 	c_count desc;
 
+
+
+
 select
 	100.00 * sum(case
 		when p_type like 'PROMO%'
-			then l_extendedprice * (1 - l_discount)
+			then cast(l_extendedprice * (1 - l_discount) as decimal(18,2))
 		else 0
-	end) / sum(l_extendedprice * (1 - l_discount)) as promo_revenue
+	end) / sum( cast(l_extendedprice * (1 - l_discount) as decimal(18,2)) ) as promo_revenue
 from
 	lineitem,
 	part
@@ -1291,12 +1341,16 @@ where
 	and l_shipdate >= date '1995-07-01'
 	and l_shipdate < date '1995-07-01' + interval '1' month;
 
+
+
+
+
 select
 	100.00 * sum(case
 		when p_type like 'LARGE%'
-			then l_extendedprice * (1 - l_discount)
+			then cast ( l_extendedprice * (1 - l_discount) as decimal(18,2) ) as 
 		else 0
-	end) / sum(l_extendedprice * (1 - l_discount)) as promo_revenue
+	end) / sum( cast (l_extendedprice * (1 - l_discount) as decimal(18,2)) ) as promo_revenue
 from
 	lineitem,
 	part
@@ -1304,12 +1358,14 @@ where
 	l_partkey = p_partkey
 	and l_shipdate >= date '1995-07-01';
 
+
+
 select
 	100.00 * sum(case
 		when p_type like 'SMALL%'
-			then l_extendedprice * (1 - l_discount)
+			then cast ( l_extendedprice * (1 - l_discount) as decimal(18,2))
 		else 0
-	end) / sum(l_extendedprice * (1 - l_discount)) as promo_revenue
+	end) / sum( cast( l_extendedprice * (1 - l_discount) as decimal(18,2)) ) as promo_revenue
 from
 	lineitem,
 	part
@@ -1321,7 +1377,7 @@ where
 create view revenue0 (supplier_no, total_revenue) as
 	select
 		l_suppkey,
-		sum(l_extendedprice * (1 - l_discount))
+		sum( cast (l_extendedprice * (1 - l_discount)   as decimal(18,2)) )
 	from
 		lineitem
 	where
@@ -1373,7 +1429,7 @@ drop view revenue0;
 create view revenue0 (supplier_no, total_revenue) as
 	select
 		l_suppkey,
-		sum(l_extendedprice * (1 - l_discount))
+		sum( cast ( l_extendedprice * (1 - l_discount) as decimal (18,2)) )
 	from
 		lineitem
 	where
@@ -1707,7 +1763,7 @@ order by
 
 
 select
-	sum(l_extendedprice* (1 - l_discount)) as revenue
+	sum( cast (l_extendedprice* (1 - l_discount) as decimal(18,2)) ) as revenue
 from
 	lineitem,
 	part
@@ -1743,7 +1799,7 @@ where
 	);
 
 select
-	max(l_extendedprice* (1 - l_discount)) as maxrevenue
+	max( cast ( l_extendedprice* (1 - l_discount) as decimal(18,2)) ) as maxrevenue
 from
 	lineitem,
 	part
@@ -1770,7 +1826,7 @@ where
 	);
 
 select
-	avg(l_extendedprice* (1 - l_discount)) as avgrevenue
+	avg( cast (l_extendedprice* (1 - l_discount) as decimal(18,2)) ) as avgrevenue
 from
 	lineitem,
 	part
@@ -1786,7 +1842,7 @@ where
 	);
 
 select
-	min(l_extendedprice* (1 - l_discount)) as minrevenue
+	min( cast(l_extendedprice* (1 - l_discount)as decimal(18,2))) as minrevenue
 from
 	lineitem,
 	part
@@ -1805,7 +1861,7 @@ where
 	);
 
 select
-	min(l_extendedprice* (1 - l_discount)) as minrevenue
+	min( cast ( l_extendedprice* (1 - l_discount) as decimal(18,2)) ) as minrevenue
 from
 	lineitem,
 	part
@@ -1850,7 +1906,7 @@ where
 			)
 			and ps_availqty > (
 				select
-					0.5 * sum(l_quantity)
+					0.5 * sum( cast(l_quantity as decimal(18,2)) )
 				from
 					lineitem
 				where
@@ -1888,7 +1944,7 @@ where
 			)
 			and ps_availqty > (
 				select
-					0.5 * sum(l_quantity)
+					0.5 * sum( cast(l_quantity as decimal(18,2)) )
 				from
 					lineitem
 				where
@@ -2341,3 +2397,37 @@ group by
 	cntrycode
 order by
 	cntrycode;
+
+
+select
+	100.00 * sum(case
+		when p_type not like 'PROMO%'
+			then cast ( l_extendedprice * (1 - l_discount) as decimal(18,2))
+		else 0
+	end) / sum( cast(l_extendedprice * (1 - l_discount) as decimal(18,2)) ) as promo_revenue
+from
+	lineitem,
+	part
+where
+	l_partkey = p_partkey
+	and l_shipdate < date '1995-07-01' + interval '1' month;
+
+
+
+
+
+
+select
+	100.00 * sum(case
+		when p_type not like 'PROMO%'
+			then cast( l_extendedprice * (1 - l_discount) as decimal (18,2))
+		else 0
+	end) / sum( cast (l_extendedprice * (1 - l_discount) as decimal(18,2) )) as promo_revenue
+from
+	lineitem,
+	part
+where
+	l_partkey = p_partkey;
+
+
+
