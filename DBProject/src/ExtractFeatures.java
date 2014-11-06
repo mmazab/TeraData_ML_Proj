@@ -38,6 +38,7 @@ public class ExtractFeatures {
 		return query;
 	}
 	
+
 	/**
 	 * Main
 	 */
