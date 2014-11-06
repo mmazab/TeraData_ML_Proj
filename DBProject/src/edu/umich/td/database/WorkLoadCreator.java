@@ -11,7 +11,8 @@ public class WorkLoadCreator {
 	// The main function that prints all combinations of size r
 	// in arr[] of size n. This function mainly uses combinationUtil()
 	public static ArrayList<String[]> batches = new ArrayList<String[]>();
-	static void printCombination(String queries[], int n, int batchSize)
+	
+	static void getCombination(ArrayList<String> queries, int n, int batchSize)
 	{
 	    // A temporary array to store all combination one by one
 	    String[] batch = new String[batchSize];
@@ -29,7 +30,7 @@ public class WorkLoadCreator {
 	 * @param index --> the index in data where we need to add the next element
 	 * @param batchSize
 	 */
-	static void combination(String queries[], String[] batch, int start, int end, int index, int batchSize)
+	static void combination(ArrayList<String> queries, String[] batch, int start, int end, int index, int batchSize)
 	{
 	    // Current combination is ready to be printed, print it
 	    if (index == batchSize)
@@ -40,7 +41,7 @@ public class WorkLoadCreator {
 	 
 	    for (int i = start; i <= end && end - i + 1 >= batchSize - index; i++)
 	    {
-	        batch[index] = queries[i];
+	        batch[index] = queries.get(i);
 	        combination(queries, batch, i+1, end, index+1, batchSize);
 	    }
 	}
@@ -50,10 +51,10 @@ public class WorkLoadCreator {
 	 * @param queries --> the set of 100 input queries
 	 * @return 
 	 */
-	public static ArrayList<String[]> createWorkLoads(String[] queries) {
-	    int n = queries.length;
-	    for(int batchSize = 2; batchSize <= n; batchSize++) {
-	    	printCombination(queries, n, batchSize);
+	public static ArrayList<String[]> createWorkLoads(ArrayList<String> queries) {
+	    int n = queries.size();
+	    for(int batchSize = 2; batchSize <= 5; batchSize++) {
+	    	getCombination(queries, n, batchSize);
 	    }
 	    System.out.println(batches.size());
 	    return batches;
