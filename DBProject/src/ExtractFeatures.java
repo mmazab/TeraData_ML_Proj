@@ -1,6 +1,7 @@
 /*Author: Noy Schaal
  * Last Updated: November 2014
  * ExtractFeatures.java
+ * Test
  */
 
 import java.io.IOException;
