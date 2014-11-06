@@ -28,6 +28,12 @@ public class Controller {
 			ArrayList<String> featuresList = qtFeatExtractor.ExtractFeatures(queries.get(i));
 			
 			int[] CpuIo = {0,0};
+			
+			String query = queries.get(i);
+			System.out.println( query );
+			
+			query = query.replaceFirst("\n", "/*Q" + System.currentTimeMillis()+"*/\n" );
+			System.err.println( query );
 			boolean status = TdDatabase.ExecuteQuery(queries.get(i));
 			
 			if(!status) 
