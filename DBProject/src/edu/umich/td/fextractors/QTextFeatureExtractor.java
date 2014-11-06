@@ -14,6 +14,8 @@ public class QTextFeatureExtractor {
 	
 	String path;
 	String tmpFileName = "files/tmp.feat";
+	
+	// Reads features from file that was returned by python script
 	ArrayList<String> ReadFeatFromFile(){
 		String strLine;
 		ArrayList<String> featuresList = new ArrayList<String>();
@@ -26,52 +28,49 @@ public class QTextFeatureExtractor {
 					String[] features = strLine.trim().split("\t");
 					for(int i=0; i<features.length; i++)
 						featuresList.add(features[i]);
-				}
-			}
+				}//end if
+			}//end while
 			in.close();
 			return featuresList;
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
-	}
+	} //end ReadFeatFromFile
 	
-	
+	// Calls a python scripts that extracts features
 	public ArrayList<String> ExtractFeatures(String query){
 		
 		try{
-		
-		
-		path = new File("").getAbsolutePath();
-		WriteQueryToFile(path + "/files/tmp.sql", query, false);
-		
-		String command = "cd "+ path +"/files; python fextractor.py";
-        Process p;
+			path = new File("").getAbsolutePath();
+			WriteQueryToFile(path + "/files/tmp.sql", query, false);
+			
+			String command = "cd "+ path +"/files; python fextractor.py";
+	        Process p;
+	        
+	        p = Runtime.getRuntime().exec("bash");
+	        PrintWriter pw = new PrintWriter(p.getOutputStream());
+	        pw.print(command);
+	        pw.close();
         
-        p = Runtime.getRuntime().exec("bash");
-        PrintWriter pw = new PrintWriter(p.getOutputStream());
-        pw.print(command);
-        pw.close();
-        
-        
-        BufferedReader error = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        BufferedReader ms = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String ln = "";
-
-        while ((ln = error.readLine()) != null)
-            System.err.println(ln);
-
-        while ((ln = ms.readLine()) != null)
-            System.out.println(ln);
-        System.out.print("Extracting features ... ");
-        p.waitFor();
-        System.out.println("Done");
-        return ReadFeatFromFile();
-		}catch(Exception e){
-			return null;
-		}
-	}
+            BufferedReader error = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+	        BufferedReader ms = new BufferedReader(new InputStreamReader(p.getInputStream()));
+	        String ln = "";
 	
+	        while ((ln = error.readLine()) != null)
+	            System.err.println(ln);
+	
+	        while ((ln = ms.readLine()) != null)
+	            System.out.println(ln);
+	        System.out.print("Extracting features ... ");
+	        p.waitFor();
+	        System.out.println("Done");
+	        return ReadFeatFromFile();
+	        
+		} catch(Exception e) { return null;	}
+	}//end Extract Features
+	
+	// Writes the query into a file to be passed to python script
 	public static void WriteQueryToFile(String fileName, String text, boolean append) {
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(fileName), append));
@@ -80,6 +79,6 @@ public class QTextFeatureExtractor {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-	}
+	}//end WriteQueryToFile
 
 }
