@@ -14,8 +14,8 @@ public class StatsCollector {
 	
 	public static int[] CollectCpuIO(String query) {
 		int[] CpuIO = { 0, 0 };
-		String getData = "SELECT TotalIOCount, AMPCPUTime FROM DBC.QRYlog WHERE QueryText= \'"
-				+ query + "\' and UserName = 'MAZAB';";
+		String getData = "SELECT TotalIOCount, AMPCPUTime FROM DBC.QRYlogv WHERE QueryText LIKE '%" 
+				+ query + "%' and UserName = 'MAZAB';";
 		try {
 			// Loading the Teradata JDBC driver
 			try {
@@ -24,7 +24,7 @@ public class StatsCollector {
 				e1.printStackTrace();
 			}
 			Connection con = DriverManager.getConnection(url, sUser, sPassword);
-			System.out.println(" Connection to Teradata established. \n");
+			
 
 			try {
 				Statement stmt = con.createStatement();
@@ -36,10 +36,10 @@ public class StatsCollector {
 					int rowCount = 0;
 					while (rs.next()) {
 						rowCount++;
-						System.out.println("IO: " + rs.getInt(0) + " CPU: "
-								+ rs.getInt(1));
-						CpuIO[0] = rs.getInt(0);
-						CpuIO[1] = rs.getInt(1);
+						System.out.println("IO: " + rs.getInt(1) + " CPU: "
+								+ rs.getInt(2));
+						CpuIO[0] = rs.getInt(1);
+						CpuIO[1] = rs.getInt(2);
 					}
 					System.out.println("\n " + rowCount + " row(s) returned.");
 				} finally {

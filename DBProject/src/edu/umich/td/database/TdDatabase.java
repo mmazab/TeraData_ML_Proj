@@ -53,28 +53,23 @@ public class TdDatabase {
 			}
 			// Attempting to connect to Teradata
 			Connection con = DriverManager.getConnection(url, sUser, sPassword);
-
 			try {
 				// Creating a statement object from an active connection.
 				Statement stmt = con.createStatement();
-				// System.out.println(" Statement object created. \n");
-
 				try {
 					// Execute query
 					System.out.println("Executing query...");
 					stmt.executeQuery(query);
 					System.out.println("Waiting...");
-					Thread.sleep(10000);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} finally {
 					// Close the statement
 					stmt.close();
-					// System.out.println("\n Statement object closed. \n");
 				}
 			} finally {
 				// Close the connection
-				// System.out.println(" Closing connection to Teradata...");
 				con.close();
 			}
 			return true;
