@@ -46,5 +46,10 @@ public class QueriesPool {
 		return null;
 	}
 	
+	public ArrayList<ArrayList<String>> ClusteredQueries(){
+		
+		return null;
+	}
+	
 
 }

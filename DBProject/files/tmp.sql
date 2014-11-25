@@ -1,43 +1,11 @@
 select
-	s_acctbal,
-	s_name,
-	n_name,
-	p_partkey,
-	p_mfgr,
-	s_address,
-	s_phone,
-	s_comment
+	100.00 * sum(case
+		when p_type not like 'PROMO%'
+			then cast( l_extendedprice * (1 - l_discount) as decimal (18,2))
+		else 0
+	end) / sum( cast (l_extendedprice * (1 - l_discount) as decimal(18,2) )) as promo_revenue
 from
-	part,
-	supplier,
-	partsupp,
-	nation,
-	region
+	lineitem,
+	part
 where
-	p_partkey = ps_partkey
-	and s_suppkey = ps_suppkey
-	and p_size = 12
-	and p_type like '%NICKEL'
-	and s_nationkey = n_nationkey
-	and n_regionkey = r_regionkey
-	and r_name = 'AFRICA'
-	and ps_supplycost = (
-		select
-			min(ps_supplycost)
-		from
-			partsupp,
-			supplier,
-			nation,
-			region
-		where
-			p_partkey = ps_partkey
-			and s_suppkey = ps_suppkey
-			and s_nationkey = n_nationkey
-			and n_regionkey = r_regionkey
-			and r_name = 'AFRICA'
-	)
-order by
-	s_acctbal desc,
-	n_name,
-	s_name,
-	p_partkey;
+	l_partkey = p_partkey;

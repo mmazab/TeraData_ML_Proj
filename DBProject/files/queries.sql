@@ -44,6 +44,10 @@ order by
 
 
 
+
+
+
+
 select
 	o_orderstatus,
 	sum(l_extendedprice * cast ((1 - l_discount) as decimal(18,2)) ) as revenue
@@ -356,6 +360,11 @@ group by
 order by
 	o_orderpriority;
 
+
+
+
+
+
 select
 	o_orderpriority,
 	avg(o_totalprice) as avg_orderprice
@@ -469,9 +478,6 @@ group by
 	n_name
 order by
 	avgrevenue;
-
-
-
 
 select
 	o_orderstatus,
