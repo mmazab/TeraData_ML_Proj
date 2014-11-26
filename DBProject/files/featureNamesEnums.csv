@@ -1,0 +1,15 @@
+Index,IndexType
+PlanStep,StepName
+Predicate,PredicateKind
+Relation,Confidence
+Relation,RelationKind
+SortKey,SortKind
+Statement,QCFStatementType
+Statement,StatementGroup
+Statement,StatementType
+StepDetails,JoinType
+StepDetails,LockLevel
+StepDetails,LockType
+StepDetails,LockSeverity
+TargetStore,Confidence
+TargetStore,GeogInfo
