@@ -12,6 +12,11 @@ public class Feature {
 		this.category = type;
 	}
 	
+    public Feature clone(){
+        Feature f = new Feature(this.featureName, this.featureValue, this.category);
+        return f;
+    }
+	
 	  @Override
 	  public String toString() {
 		  return category.getFeatureCategory() + ": (" + featureName + ", " + featureValue + ")";

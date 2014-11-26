@@ -22,7 +22,7 @@ public class QPlanFeatureExtractor {
 	    XMLHandler handler = new XMLHandler();  
 		FileInputStream fstream = new FileInputStream(fileName);
 	    parser.parse(fstream,handler);
-	    return handler.FEATURE_SET;
+	    return handler.getFeatures();
 	}
 	
 	// MAIN
