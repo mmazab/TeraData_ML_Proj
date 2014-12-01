@@ -5,16 +5,22 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class StatsCollector {
-	
+
 	public static String sUser = "dbc";
 	public static String sPassword = "eecs58414";
-	public static String url = "jdbc:teradata://ec2-54-167-248-214.compute-1.amazonaws.com";
+	public static String url = "jdbc:teradata://ec2-23-20-169-48.compute-1.amazonaws.com";
 	
+	public static Map<String, Integer> tables;
+
 	public static int[] CollectCpuIO(String query) {
 		int[] CpuIO = { 0, 0 };
-		String getData = "SELECT TotalIOCount, AMPCPUTime FROM DBC.QRYlogv WHERE QueryText LIKE '%" 
+		String getData = "SELECT TotalIOCount, AMPCPUTime FROM DBC.QRYlogv WHERE QueryText LIKE '%"
 				+ query + "%' and UserName = 'MAZAB';";
 		try {
 			// Loading the Teradata JDBC driver
@@ -24,7 +30,6 @@ public class StatsCollector {
 				e1.printStackTrace();
 			}
 			Connection con = DriverManager.getConnection(url, sUser, sPassword);
-			
 
 			try {
 				Statement stmt = con.createStatement();
@@ -72,6 +77,60 @@ public class StatsCollector {
 			return null;
 		}
 
+	}
+
+	public static Map<String, Integer> GetAllTablesAndCounts(String dbName) {
+		Map<String, Integer> countMap = new HashMap<String, Integer>();
+		try {
+			// Loading the Teradata JDBC driver
+			Class.forName("com.teradata.jdbc.TeraDriver");
+			Connection con = DriverManager.getConnection(url, sUser, sPassword);
+			String getData = "HELP database " + dbName + ";";
+			try {
+				Statement stmt = con.createStatement();
+				try {
+					ResultSet rs = stmt.executeQuery(getData);
+					int rowCount = 0;
+					while (rs.next()) {
+						rowCount++;
+						if(!rs.getString(1).contains("_")){
+							int count = GetTableRowCount(con, dbName, rs.getString(1));
+							countMap.put(rs.getString(1), count);
+						}
+					}
+				} finally {
+					// Close the statement
+					stmt.close();
+				}
+			} finally {
+				// Close the connection
+				con.close();
+			}
+			return countMap;
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+
+	private static int GetTableRowCount(Connection con, String dbName, String tableName) {
+		String getData = "Select COUNT(*) from  " + dbName +"."+tableName + ";";
+		try {
+			Statement stmt = con.createStatement();
+			try {
+				ResultSet rs = stmt.executeQuery(getData);
+				while (rs.next()) {
+					return rs.getInt(1);
+				}
+			}
+			finally {
+				// Close the statement
+				stmt.close();
+			}
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return 0;
 	}
 
 }

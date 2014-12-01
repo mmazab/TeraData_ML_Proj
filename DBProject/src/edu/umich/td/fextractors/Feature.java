@@ -10,6 +10,7 @@ public class Feature {
 		this.featureName = name;
 		this.featureValue = value;
 		this.category = type;
+		
 	}
 	
 	  @Override
