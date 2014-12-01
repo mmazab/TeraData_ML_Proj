@@ -13,8 +13,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import workload.Query;
 import edu.umich.td.database.StatsCollector;
+import edu.umich.td.workload.Query;
 
 public class QTextFeatureExtractor {
 	String path;

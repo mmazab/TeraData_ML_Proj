@@ -1,4 +1,4 @@
-package workload;
+package edu.umich.td.workload;
 
 /*Author: Mahmoud Azab
  * Last Updated: November 2014

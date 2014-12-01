@@ -1,4 +1,4 @@
-package workload;
+package edu.umich.td.workload;
 
 import java.util.ArrayList;
 import java.util.Random;

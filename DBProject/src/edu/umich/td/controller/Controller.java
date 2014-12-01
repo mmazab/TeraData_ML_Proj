@@ -10,12 +10,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
-import workload.QueriesPool;
-import workload.Query;
-import workload.WorkLoadGenerator;
 import edu.umich.td.database.*;
 import edu.umich.td.fextractors.Feature;
 import edu.umich.td.fextractors.QTextFeatureExtractor;
+import edu.umich.td.workload.QueriesPool;
+import edu.umich.td.workload.Query;
+import edu.umich.td.workload.WorkLoadGenerator;
 
 public class Controller {
 
