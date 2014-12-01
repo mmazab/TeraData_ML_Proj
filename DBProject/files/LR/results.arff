@@ -1,0 +1,35 @@
+@relation InstanceResultListener
+
+@attribute Key_Dataset string
+@attribute Key_Run string
+@attribute Key_Fold string
+@attribute Key_Scheme string
+@attribute Key_Scheme_options string
+@attribute Key_Scheme_version_ID string
+@attribute Date_time numeric
+@attribute Number_of_training_instances numeric
+@attribute Number_of_testing_instances numeric
+@attribute Mean_absolute_error numeric
+@attribute Root_mean_squared_error numeric
+@attribute Relative_absolute_error numeric
+@attribute Root_relative_squared_error numeric
+@attribute Correlation_coefficient numeric
+@attribute Number_unclassified numeric
+@attribute Percent_unclassified numeric
+@attribute SF_prior_entropy numeric
+@attribute SF_scheme_entropy numeric
+@attribute SF_entropy_gain numeric
+@attribute SF_mean_prior_entropy numeric
+@attribute SF_mean_scheme_entropy numeric
+@attribute SF_mean_entropy_gain numeric
+@attribute Elapsed_Time_training numeric
+@attribute Elapsed_Time_testing numeric
+@attribute UserCPU_Time_training numeric
+@attribute UserCPU_Time_testing numeric
+@attribute Serialized_Model_Size numeric
+@attribute Serialized_Train_Set_Size numeric
+@attribute Serialized_Test_Set_Size numeric
+@attribute Summary string
+
+@data
+
