@@ -35,15 +35,15 @@ public class QTextFeatureExtractor {
 						Feature feature = new Feature("f_"+i, features[i], FeatureCategory.QUERYTEXT);
 						featuresList.add(feature);
 					}
-				}
-			}
+				}//end if
+			}//end while
 			in.close();
 			return featuresList;
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
-	}
+	} //end ReadFeatFromFile
 
 	// Run query text feature extractor script
 	public ArrayList<Feature> ExtractFeatures(Query query) {

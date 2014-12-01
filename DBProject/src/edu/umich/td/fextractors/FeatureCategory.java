@@ -3,11 +3,11 @@ package edu.umich.td.fextractors;
 public enum FeatureCategory {
 	QUERYTEXT("QueryText"), 
 	QUERYPLAN("QueryPlan"), 
-	WORKLOAD("WorkLoad"), 
+	WORKLOAD("WorkLoad"),
 	SYSTEMSTATUS("SystemStatus"),
+	// the following categories are from the XML plan
 	AmpPlanUsage("AmpPlanUsage"),
 	AmpStepUsage("AmpStepUsage"),
-	CHKWL("CHKWL"),
 	CIX("CIX"),
 	Configuration("Configuration"),
 	CSUpd("CSUpd"),
@@ -16,14 +16,13 @@ public enum FeatureCategory {
 	Field("Field"),
 	Index("Index"),
 	OptPlanEst("OptPlanEst"),
+	OptStepEst("OptStepEst"),
 	Plan("Plan"),
 	PlanStep("PlanStep"),
 	PPIAccess("PPIAccess"),
 	Predicate("Predicate"),
-	Query("Query"),
 	Relation("Relation"),
 	Request("Request"),
-	Session("Session"),
 	SortKey("SortKey"),
 	SourceAccess("SourceAccess"),
 	Spool("Spool"),
@@ -31,8 +30,8 @@ public enum FeatureCategory {
 	StepDetails("StepDetails"),
 	StepRecursion("StepRecursion"),
 	TargetStore("TargetStore"),
-	ViewRef("ViewRef"),
-	WLMgmt("WLMgmt");
+	WLMgmt("WLMgmt"),
+	NULL("");
 	
 	
 	private String featureCategory;
