@@ -1,117 +1,205 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<QryPlanXML xsi:noNamespaceSchemaLocation="C:\13.1\td_qry_schema_13_1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<Query QueryID="163833551403145519" CollectTimeStamp="2008-09-25T07:46:05" StartTime ="2008-09-25T10:53:56.03">
-<Request QueryText="select employee.name, department.deptname, salary from department, employee where department.deptno = employee.deptno and employee.yrsexp &gt;=5 order by 3 desc;" DefaultDatabaseId="DBpersonnel" NumResultRows="19">
-<Statement StatementType="Select" StatementGroup="Select"/>
-</Request>
-<Plan CacheFlag="false" NumSteps="6" NumStepswPar="0">
-<PlanStep StepLev1Num="1" StepName="MLK" StepText=" 1) First, we lock a distinct PERSONNEL.&quot;pseudo table&quot; for read on a RowHash to prevent global deadlock for PERSONNEL.department. ">
-<StepDetails>
-<MLK>
-<LockOperation PseudoTable="true">
-<RelationRef Ref="REL1"/>
-</LockOperation>
-</MLK>
-</StepDetails>
-</PlanStep>
-<PlanStep StepLev1Num="2" StepName="MLK" StepText=" 2) Next, we lock a distinct PERSONNEL.&quot;pseudo table&quot; for read on a RowHash to prevent global deadlock for PERSONNEL.employee.">
-<StepDetails>
-<MLK>
-<LockOperation PseudoTable="true">
-<RelationRef Ref="REL2"/>
-</LockOperation>
-</MLK>
-</StepDetails>
-</PlanStep>
-<PlanStep StepLev1Num="3" StepName="MLK" StepText=" 3) We lock PERSONNEL.department for read, and we lock PERSONNEL.employee for read. ">
-<StepDetails>
-<MLK>
-<LockOperation LockType="R" RowHashFlag="F" LockSeverity="Read" LockLevel="Table" PseudoTable="false">
-<RelationRef Ref="REL1"/>
-</LockOperation>
-<LockOperation LockType="R" RowHashFlag="F" LockSeverity="Read" LockLevel="Table" PseudoTable="false">
-<RelationRef Ref="REL2"/>
-</LockOperation>
-</MLK>
-</StepDetails>
-</PlanStep>
-<PlanStep StepLev1Num="4" StepName="RET" StepText=" 4) We do an all-AMPs RETRIEVE step from PERSONNEL.employee by way of an all-rows scan with a condition of (&quot;(PERSONNEL.employee.YrsExp &gt;= 5&quot;) into Spool 2(all_amps), which is redistributed by the hash code of (PERSONNEL.employee.DeptNo) to all AMPs. Then we do a SORT to order Spool 2 by row hash. The size of Spool 2 is estimated with no confidence to be 6 rows (150 bytes). The estimated time for this step is 0.01 seconds.">
-<SourceAccess AccessPosition="1" SyncScanEligible="true">
-<RelationRef Ref="REL2"/>
-<Predicate PredicateKind="S" PredicateText="(PERSONNEL.employee.YrsExp &gt;= 5)">
-<FieldRef Ref="REL2_FLD1030"/>
-</Predicate>
-</SourceAccess>
-<TargetStore GeogInfo="H" Cached="true" EstCardinality="6" Confidence="N">
-<SpoolRef Ref="SPOOL2"/>
-<SortKey SortKind="RHS"/>
-</TargetStore>
-<OptStepEst EstCPUCost="0.008" EstIOCost="10.182" EstProcTime=".01" EstRowCount="6"/>
-<AmpStepUsage CPUTime="6" IOcount="42" StepRowsReturned="19" />
-</PlanStep>
-<PlanStep StepLev1Num="5" StepName="JIN" StepText=" 5) We do an all-AMPs JOIN step from Spool 2 (Last Use) by way of a RowHash match scan, which is joined to PERSONNEL.department by way of a RowHash match scan with no residual conditions. Spool 2 and PERSONNEL.department are joined using a merge join, with a join condition of (&quot;PERSONNEL.department.DeptNo = DeptNo&quot;). The result goes into Spool 1 (group_amps), which is built locally on the AMPs. Then we do a SORT to order Spool 1 by the sort key in spool field1(PERSONNEL.employee.Salary). The size of Spool 1 is estimated with no confidence to be 3 rows (171 bytes). The estimated time for this step is 0.05 seconds.">
-<SourceAccess AccessPosition="1">
-<RelationRef Ref="SPOOL2"/>
-</SourceAccess>
-<SourceAccess AccessPosition="2">
-<RelationRef Ref="REL1"/>
-</SourceAccess>
-<TargetStore GeogInfo="L" Cached="true" EstCardinality="3" Confidence="N">
-<SpoolRef Ref="SPOOL1"/>
-<SortKey SortKind="F1S">
-<FieldRef Ref="SPOOL2_FLD1029"/>
-</SortKey>
-</TargetStore>
-<Predicate PredicateKind="J" PredicateText=" PERSONNEL.department.DeptNo = DeptNo ">
-<FieldRef Ref="REL1_FLD1025"/>
-<FieldRef Ref="SPOOL2_FLD1027"/>
-</Predicate>
-<StepDetails>
-<JIN JoinType="I"/>
-</StepDetails>
-<OptStepEst EstCPUCost="0.012" EstIOCost="60.325" EstProcTime=".06" EstRowCount="3"/>
-<AmpStepUsage CPUTime="3" IOcount="69" StepRowsReturned="19" />
-</PlanStep>
-<PlanStep StepLev1Num="6" StepName="Edt" StepText=" 6) Finally, we send out an END TRANSACTION step to all AMPs involved in processing the request. -&gt; The contents of Spool 1 are sent back to the user as the result of statement 1. The total estimated time is 0.07 seconds.">
-</PlanStep>
-<OptPlanEst EstResultRows="3" EstProcTime="0.071" />
-<AmpPlanUsage TotalIOCount="111" AMPCPUTime="0.0" SpoolUsage="3584" />
-</Plan>
-<ObjectDefs>
-<Database Id="DBpersonnel" DatabaseName="Personnel">
-<Relation Id="REL1" DatabaseId="DBpersonnel" TableName="Department" RelationKind="P" Cardinality="4" Confidence="L" Version="1">
-<Field Id="REL1_FLD1026" RelationId="REL1" FieldID="1026" FieldName="DeptName" DataLength="14"/>
-<Field Id="REL1_FLD1025" RelationId="REL1" FieldID="1025" FieldName="DeptNo" JoinAccessFrequency="1" DataLength="2"/>
-<Index Id="REL1_IDX1" RelationId="REL1" IndexNum="1" IndexFlag="false" IndexType="P" UniqueFlag="true">
-<FieldRef Ref="REL1_FLD1025"/>
-</Index>
-</Relation>
-<Relation Id="REL2" DatabaseId="DBpersonnel" TableName="Employee" RelationKind="P" Cardinality="18" Confidence="L" Version="1">
-<Field Id="REL2_FLD1025" RelationId="REL2" FieldID="1025" FieldName="EmpNo" DataLength="2"/>
-<Field Id="REL2_FLD1026" RelationId="REL2" FieldID="1026" FieldName="Name" DataLength="12"/>
-<Field Id="REL2_FLD1027" RelationId="REL2" FieldID="1027" FieldName="DeptNo" JoinAccessFrequency="1" RangeAccessFrequency="2" DataLength="2"/>
-<Field Id="REL2_FLD1029" RelationId="REL2" FieldID="1029" FieldName="Salary" DataLength="4"/>
-<Field Id="REL2_FLD1030" RelationId="REL2" FieldID="1030" FieldName="YrsExp" RangeAccessFrequency="1" DataLength="1"/>
-<Index Id="REL2_IDX1" RelationId="REL2" IndexNum="1" IndexFlag="false" IndexType="P" UniqueFlag="true" >
-<FieldRef Ref="REL2_FLD1025"/>
-</Index>
-<Index Id="REL2_IDX4" RelationId="REL2" IndexNum="4" IndexFlag="false" IndexType="S" >
-<FieldRef Ref="REL2_FLD1026"/>
-</Index>
-</Relation>
-</Database>
-<Database Id="DBdbc" DatabaseName="dbc">
-<Spool Id="SPOOL2" SpoolNumber="2" Cardinality="6" SpoolSize="150">
-<Field Id="SPOOL2_FLD1026" RelationId="SPOOL2" FieldID="1026" FieldName="Name" DataLength="12"/>
-<Field Id="SPOOL2_FLD1027" RelationId="SPOOL2" FieldID="1027" FieldName="DeptNo" DataLength="2"/>
-<Field Id="SPOOL2_FLD1029" RelationId="SPOOL2" FieldID="1029" FieldName="Salary" DataLength="4"/>
-</Spool>
-<Spool Id="SPOOL1" SpoolNumber="1" Cardinality="3" SpoolSize="171"/>
-</Database>
-</ObjectDefs>
-<Configuration MachName="localhost" NumAMPs="2" NumPEs="1" NumNodes="1" ReleaseInfo="13.01.00.00 " VersionInfo=" 13.01.00.00" PENum="16383"/>
-<User UserID=" 00000100" UserName="DBC" AcctString="DBC" />
-<Session SessionID="1037" LogicalHostID="1"/>
-<WLMgmt/>
-</Query>
+<QryPlanXML xmlns="http://schemas.teradata.com/queryplan" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schemas.teradata.com/queryplan http://schemas.teradata.com/queryplan/queryplan.xsd">
+
+  <Query QCFCaptureTimestamp="2014-12-05T09:29:37">
+    <Request DefaultDatabase="TPCH" QueryText="select&#xD;&#x9;l_orderkey,&#xD;&#x9;sum(cast (l_extendedprice * (1 - l_discount) as decimal(18,2))) as revenue&#xD;from&#xD;&#x9;customer,&#xD;&#x9;orders,&#xD;&#x9;lineitem&#xD;where&#xD;&#x9;c_custkey = o_custkey&#xD;&#x9;and l_orderkey = o_orderkey&#xD;&#x9;and c_mktsegment = 'FURNITURE'&#xD;group by&#xD;&#x9;l_orderkey&#xD;order by&#xD;&#x9;l_orderkey,&#xD;&#x9;revenue desc;">
+      <Statement QCFStatementType="RET"/>
+    </Request>
+    <ObjectDefs>
+      <Database DatabaseName="TPCH" Id="DBTPCH">
+        <Relation Cardinality="6005128" Confidence="High" DatabaseId="DBTPCH" Id="REL1" Partitioned="false" RelationDDL="CREATE SET TABLE TPCH.lineitem ,FALLBACK , NO BEFORE JOURNAL, NO AFTER JOURNAL, CHECKSUM = DEFAULT, DEFAULT MERGEBLOCKRATIO ( L_ORDERKEY INTEGER NOT NULL, L_PARTKEY INTEGER NOT NULL, L_SUPPKEY INTEGER NOT NULL, L_LINENUMBER INTEGER NOT NULL, L_QUANTITY DECIMAL(15,2) NOT NULL, L_EXTENDEDPRICE DECIMAL(15,2) NOT NULL, L_DISCOUNT DECIMAL(15,2) NOT NULL, L_TAX DECIMAL(15,2) NOT NULL, L_RETURNFLAG CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, L_LINESTATUS CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, L_SHIPDATE DATE FORMAT 'YY/MM/DD' NOT NULL, L_COMMITDATE DATE FORMAT 'YY/MM/DD' NOT NULL, L_RECEIPTDATE DATE FORMAT 'YY/MM/DD' NOT NULL, L_SHIPINSTRUCT CHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, L_SHIPMODE CHAR(10) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, L_COMMENT VARCHAR(44) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, PRIMARY KEY ( L_ORDERKEY ,L_LINENUMBER ), FOREIGN KEY ( L_ORDERKEY ) REFERENCES TPCH.ORDERS ( O_ORDERKEY ), FOREIGN KEY ( L_PARTKEY ,L_SUPPKEY ) REFERENCES TPCH.PARTSUPP ( PS_PARTKEY , PS_SUPPKEY )) PRIMARY INDEX ( L_ORDERKEY );" RelationKind="Permanent" TableName="lineitem" Version="4">
+          <Field DataLength="4" FieldID="1028" FieldName="L_LINENUMBER" FieldType="I" Id="REL1_FLD1028" JoinAccessFrequency="0" RangeAccessFrequency="0" RelationId="REL1" ValueAccessFrequency="0"/>
+          <Field DataLength="4" FieldID="1025" FieldName="L_ORDERKEY" FieldType="I" Id="REL1_FLD1025" JoinAccessFrequency="1" RangeAccessFrequency="0" RelationId="REL1" ValueAccessFrequency="0"/>
+          <Index Id="REL1_IDX4" IndexNum="4" IndexType="Primary Key" OrderBy="false" QCFIndexFlag="false" RelationId="REL1" UniqueFlag="true">
+            <FieldRef Ref="REL1_FLD1025"/>
+            <FieldRef Ref="REL1_FLD1028"/>
+          </Index>
+          <Index Id="REL1_IDX1" IndexNum="1" IndexType="Nonpartitioned Primary" OrderBy="false" QCFIndexFlag="false" RelationId="REL1" UniqueFlag="false">
+            <FieldRef Ref="REL1_FLD1025"/>
+          </Index>
+        </Relation>
+        <Relation Cardinality="1500558" Confidence="High" DatabaseId="DBTPCH" Id="REL2" Partitioned="false" RelationDDL="CREATE SET TABLE TPCH.orders ,FALLBACK , NO BEFORE JOURNAL, NO AFTER JOURNAL, CHECKSUM = DEFAULT, DEFAULT MERGEBLOCKRATIO ( O_ORDERKEY INTEGER NOT NULL, O_CUSTKEY INTEGER NOT NULL, O_ORDERSTATUS CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, O_TOTALPRICE DECIMAL(15,2) NOT NULL, O_ORDERDATE DATE FORMAT 'YY/MM/DD' NOT NULL, O_ORDERPRIORITY CHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, O_CLERK CHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, O_SHIPPRIORITY INTEGER NOT NULL, O_COMMENT VARCHAR(79) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, PRIMARY KEY ( O_ORDERKEY ), FOREIGN KEY ( O_CUSTKEY ) REFERENCES TPCH.CUSTOMER ( C_CUSTKEY )) PRIMARY INDEX ( O_ORDERKEY );" RelationKind="Permanent" TableName="orders" Version="4">
+          <Field DataLength="4" FieldID="1026" FieldName="O_CUSTKEY" FieldType="I" Id="REL2_FLD1026" JoinAccessFrequency="1" RangeAccessFrequency="0" RelationId="REL2" ValueAccessFrequency="0"/>
+          <Field DataLength="4" FieldID="1025" FieldName="O_ORDERKEY" FieldType="I" Id="REL2_FLD1025" JoinAccessFrequency="1" RangeAccessFrequency="0" RelationId="REL2" ValueAccessFrequency="0"/>
+          <Index Id="REL2_IDX4" IndexNum="4" IndexType="Primary Key" OrderBy="false" QCFIndexFlag="false" RelationId="REL2" UniqueFlag="true">
+            <FieldRef Ref="REL2_FLD1025"/>
+          </Index>
+          <Index Id="REL2_IDX1" IndexNum="1" IndexType="Nonpartitioned Primary" OrderBy="false" QCFIndexFlag="false" RelationId="REL2" UniqueFlag="false">
+            <FieldRef Ref="REL2_FLD1025"/>
+          </Index>
+        </Relation>
+        <Relation Cardinality="149998" Confidence="High" DatabaseId="DBTPCH" Id="REL3" Partitioned="false" RelationDDL="CREATE SET TABLE TPCH.customer ,FALLBACK , NO BEFORE JOURNAL, NO AFTER JOURNAL, CHECKSUM = DEFAULT, DEFAULT MERGEBLOCKRATIO ( C_CUSTKEY INTEGER NOT NULL, C_NAME VARCHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, C_ADDRESS VARCHAR(40) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, C_NATIONKEY INTEGER NOT NULL, C_PHONE CHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, C_ACCTBAL DECIMAL(15,2) NOT NULL, C_MKTSEGMENT CHAR(10) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, C_COMMENT VARCHAR(117) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL, PRIMARY KEY ( C_CUSTKEY ), FOREIGN KEY ( C_NATIONKEY ) REFERENCES TPCH.NATION ( N_NATIONKEY )) PRIMARY INDEX ( C_CUSTKEY );" RelationKind="Permanent" TableName="customer" Version="4">
+          <Field CharType="1" DataLength="10" FieldID="1031" FieldName="C_MKTSEGMENT" FieldType="CF" Id="REL3_FLD1031" JoinAccessFrequency="0" RangeAccessFrequency="0" RelationId="REL3" ValueAccessFrequency="1"/>
+          <Field DataLength="4" FieldID="1025" FieldName="C_CUSTKEY" FieldType="I" Id="REL3_FLD1025" JoinAccessFrequency="1" RangeAccessFrequency="0" RelationId="REL3" ValueAccessFrequency="0"/>
+          <Index Id="REL3_IDX4" IndexNum="4" IndexType="Primary Key" OrderBy="false" QCFIndexFlag="false" RelationId="REL3" UniqueFlag="true">
+            <FieldRef Ref="REL3_FLD1025"/>
+          </Index>
+          <Index Id="REL3_IDX1" IndexNum="1" IndexType="Nonpartitioned Primary" OrderBy="false" QCFIndexFlag="false" RelationId="REL3" UniqueFlag="false">
+            <FieldRef Ref="REL3_FLD1025"/>
+          </Index>
+        </Relation>
+      </Database>
+      <Database DatabaseName="DBC" Id="DBDBC">
+        <Spool Cardinality="30000" Compressible="true" Confidence="No" DatabaseId="DBDBC" Id="SPOOL4" Partitioned="false" SpoolNumber="4" SpoolSize="510000">
+          <Field DataLength="4" FieldID="1025" FieldName="C_CUSTKEY" FieldType="I" Id="SPOOL4_FLD1025" JoinAccessFrequency="0" RangeAccessFrequency="0" RelationId="SPOOL4" ValueAccessFrequency="0"/>
+        </Spool>
+        <Spool Cardinality="150058" Compressible="true" Confidence="No" DatabaseId="DBDBC" Id="SPOOL5" Partitioned="false" SpoolNumber="5" SpoolSize="2550986">
+          <Field DataLength="4" FieldID="2" FieldName="O_ORDERKEY" FieldType="I" Id="SPOOL5_FLD2" JoinAccessFrequency="0" RangeAccessFrequency="0" RelationId="SPOOL5" ValueAccessFrequency="0"/>
+        </Spool>
+        <Spool Cardinality="200078" Compressible="true" Confidence="No" DatabaseId="DBDBC" Id="SPOOL3" Partitioned="false" SpoolNumber="3" SpoolSize="7002730">
+          <Field DataLength="8" DecimalFractionalDigits="2" DecimalTotalDigits="15" FieldID="4" FieldName="L_DISCOUNT" FieldType="D" Id="SPOOL3_FLD4" JoinAccessFrequency="0" RangeAccessFrequency="0" RelationId="SPOOL3" ValueAccessFrequency="0"/>
+          <Field DataLength="8" DecimalFractionalDigits="2" DecimalTotalDigits="15" FieldID="3" FieldName="L_EXTENDEDPRICE" FieldType="D" Id="SPOOL3_FLD3" JoinAccessFrequency="0" RangeAccessFrequency="0" RelationId="SPOOL3" ValueAccessFrequency="0"/>
+          <Field DataLength="4" FieldID="2" FieldName="L_ORDERKEY" FieldType="I" Id="SPOOL3_FLD2" JoinAccessFrequency="0" RangeAccessFrequency="0" RelationId="SPOOL3" ValueAccessFrequency="0"/>
+        </Spool>
+        <Spool Cardinality="150058" Confidence="No" DatabaseId="DBDBC" Id="SPOOL6" SpoolNumber="6" SpoolSize="4351682"/>
+        <Spool Cardinality="150058" Compressible="false" Confidence="No" DatabaseId="DBDBC" Id="SPOOL1" Partitioned="false" SpoolNumber="1" SpoolSize="6152378"/>
+      </Database>
+    </ObjectDefs>
+    <Plan NumSteps="9">
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="LK" QCFStepNum="1" StepLev1Num="1" StepText="1) First, we lock a distinct TPCH.&quot;pseudo table&quot; for read on a RowHash to prevent global deadlock for TPCH.lineitem." TriggerType="None">
+        <StepDetails>
+          <MLK>
+            <LockOperation LockLevel="Row" LockSeverity="Read" NoWaitFlag="false" PseudoTable="true">
+              <RelationRef Ref="REL1"/>
+            </LockOperation>
+          </MLK>
+        </StepDetails>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="LK" QCFStepNum="2" StepLev1Num="2" StepText="2) Next, we lock a distinct TPCH.&quot;pseudo table&quot; for read on a RowHash to prevent global deadlock for TPCH.orders." TriggerType="None">
+        <StepDetails>
+          <MLK>
+            <LockOperation LockLevel="Row" LockSeverity="Read" NoWaitFlag="false" PseudoTable="true">
+              <RelationRef Ref="REL2"/>
+            </LockOperation>
+          </MLK>
+        </StepDetails>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="LK" QCFStepNum="3" StepLev1Num="3" StepText="3) We lock a distinct TPCH.&quot;pseudo table&quot; for read on a RowHash to prevent global deadlock for TPCH.customer." TriggerType="None">
+        <StepDetails>
+          <MLK>
+            <LockOperation LockLevel="Row" LockSeverity="Read" NoWaitFlag="false" PseudoTable="true">
+              <RelationRef Ref="REL3"/>
+            </LockOperation>
+          </MLK>
+        </StepDetails>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="LK" QCFStepNum="4" StepLev1Num="4" StepText="4) We lock TPCH.lineitem for read, we lock TPCH.orders for read, and we lock TPCH.customer for read." TriggerType="None">
+        <StepDetails>
+          <MLK>
+            <LockOperation LockLevel="Table" LockSeverity="Read" NoWaitFlag="false">
+              <RelationRef Ref="REL1"/>
+            </LockOperation>
+            <LockOperation LockLevel="Table" LockSeverity="Read" NoWaitFlag="false">
+              <RelationRef Ref="REL2"/>
+            </LockOperation>
+            <LockOperation LockLevel="Table" LockSeverity="Read" NoWaitFlag="false">
+              <RelationRef Ref="REL3"/>
+            </LockOperation>
+          </MLK>
+        </StepDetails>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="SR" QCFStepNum="5" StepLev1Num="5" StepText="5) We do an all-AMPs RETRIEVE step from TPCH.customer by way of an all-rows scan with a condition of (&quot;(TPCH.customer.C_MKTSEGMENT )= 'FURNITURE '&quot;) into Spool 4 (all_amps), which is duplicated on all AMPs. The size of Spool 4 is estimated with no confidence to be 30,000 rows (510,000 bytes). The estimated time for this step is 1.78 seconds." TriggerType="None">
+        <SourceAccess AccessPosition="1" SyncScanEligible="false">
+          <RelationRef Ref="REL3"/>
+          <PPIAccess TotalParts="0"/>
+          <CPInfo NumCombinedPartitions="0" NumContexts="0" NumOfColPartsReferences="0"/>
+        </SourceAccess>
+        <TargetStore Cached="true" GeogInfo="Duplicated">
+          <SpoolRef Ref="SPOOL4"/>
+        </TargetStore>
+        <Predicate PredicateKind="Source" PredicateText="(TPCH.customer.C_MKTSEGMENT )= 'FURNITURE '">
+          <FieldRef Ref="REL3_FLD1031"/>
+        </Predicate>
+        <OptStepEst EstCPUCost="16.861" EstHRCost="0.000" EstIOCost="1760.380" EstNetCost="1.370" EstProcTime="1.779" EstRowCount="30000"/>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="HF" QCFStepNum="6" StepLev1Num="6" StepText="6) We do an all-AMPs JOIN step from Spool 4 (Last Use) by way of an all-rows scan, which is joined to TPCH.orders by way of an all-rows scan with no residual conditions. Spool 4 and TPCH.orders are joined using a dynamic hash join, with a join condition of (&quot;C_CUSTKEY = TPCH.orders.O_CUSTKEY&quot;). The result goes into Spool 5 (all_amps), which is built locally on the AMPs. Then we do a SORT to order Spool 5 by the hash code of ( TPCH.orders.O_ORDERKEY). The size of Spool 5 is estimated with no confidence to be 150,058 rows (2,550,986 bytes). The estimated time for this step is 12.16 seconds." TriggerType="None">
+        <SourceAccess AccessPosition="1" SyncScanEligible="false">
+          <SpoolRef Ref="SPOOL4"/>
+          <PPIAccess TotalParts="0"/>
+          <CPInfo NumCombinedPartitions="0" NumContexts="0" NumOfColPartsReferences="0"/>
+        </SourceAccess>
+        <SourceAccess AccessPosition="2" SyncScanEligible="false">
+          <RelationRef Ref="REL2"/>
+          <PPIAccess TotalParts="0"/>
+          <CPInfo NumCombinedPartitions="0" NumContexts="0" NumOfColPartsReferences="0"/>
+        </SourceAccess>
+        <TargetStore Cached="true" GeogInfo="Local">
+          <SpoolRef Ref="SPOOL5"/>
+          <SortKey SortKind="Rowhash"/>
+        </TargetStore>
+        <Predicate PredicateKind="Join" PredicateText="C_CUSTKEY = TPCH.orders.O_CUSTKEY">
+          <FieldRef Ref="SPOOL4_FLD1025"/>
+          <FieldRef Ref="REL2_FLD1026"/>
+        </Predicate>
+        <StepDetails>
+          <JIN JoinKind="Dynamic Hash Join" JoinType="Inner" LeftOneRowOpt="false" NumPartitions="0" RightOneRowOpt="false"/>
+        </StepDetails>
+        <OptStepEst EstCPUCost="157.519" EstHRCost="0.000" EstIOCost="12006.683" EstNetCost="0.000" EstProcTime="12.164" EstRowCount="150058"/>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="MJ" QCFStepNum="7" StepLev1Num="7" StepText="7) We do an all-AMPs JOIN step from Spool 5 (Last Use) by way of a RowHash match scan, which is joined to TPCH.lineitem by way of a RowHash match scan with no residual conditions. Spool 5 and TPCH.lineitem are joined using a merge join, with a join condition of (&quot;TPCH.lineitem.L_ORDERKEY = O_ORDERKEY&quot;). The result goes into Spool 3 (all_amps), which is built locally on the AMPs. The size of Spool 3 is estimated with no confidence to be 200,078 rows (7,002,730 bytes). The estimated time for this step is 55.09 seconds." TriggerType="None">
+        <SourceAccess AccessPosition="1" SyncScanEligible="false">
+          <SpoolRef Ref="SPOOL5"/>
+          <PPIAccess TotalParts="0"/>
+          <CPInfo NumCombinedPartitions="0" NumContexts="0" NumOfColPartsReferences="0"/>
+        </SourceAccess>
+        <SourceAccess AccessPosition="2" SyncScanEligible="false">
+          <RelationRef Ref="REL1"/>
+          <PPIAccess TotalParts="0"/>
+          <CPInfo NumCombinedPartitions="0" NumContexts="0" NumOfColPartsReferences="0"/>
+        </SourceAccess>
+        <TargetStore Cached="true" GeogInfo="Local">
+          <SpoolRef Ref="SPOOL3"/>
+        </TargetStore>
+        <Predicate PredicateKind="Join" PredicateText="TPCH.lineitem.L_ORDERKEY = O_ORDERKEY">
+          <FieldRef Ref="REL1_FLD1025"/>
+          <FieldRef Ref="SPOOL5_FLD2"/>
+        </Predicate>
+        <StepDetails>
+          <JIN JoinKind="Merge Join" JoinType="Inner" LeftOneRowOpt="false" RightOneRowOpt="false"/>
+        </StepDetails>
+        <OptStepEst EstCPUCost="67.439" EstHRCost="0.000" EstIOCost="55022.642" EstNetCost="0.000" EstProcTime="55.090" EstRowCount="200078"/>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="SU" QCFStepNum="8" StepLev1Num="8" StepText="8) We do an all-AMPs SUM step to aggregate from Spool 3 (Last Use) by way of an all-rows scan , grouping by field1 ( TPCH.lineitem.L_ORDERKEY). Aggregate Intermediate Results are computed locally, then placed in Spool 6. The size of Spool 6 is estimated with no confidence to be 150,058 rows (4,351,682 bytes). The estimated time for this step is 0.82 seconds." TriggerType="None">
+        <SourceAccess AccessPosition="1" SyncScanEligible="false">
+          <SpoolRef Ref="SPOOL3"/>
+          <PPIAccess TotalParts="0"/>
+          <CPInfo NumCombinedPartitions="0" NumContexts="0" NumOfColPartsReferences="0"/>
+        </SourceAccess>
+        <TargetStore GeogInfo="Local">
+          <SpoolRef Ref="SPOOL6"/>
+        </TargetStore>
+        <StepDetails>
+          <SUM CylinderIndexScan="false" GlobalFlag="false">
+            <FieldRef Ref="SPOOL3_FLD2"/>
+          </SUM>
+        </StepDetails>
+        <OptStepEst EstCPUCost="91.203" EstHRCost="0.000" EstIOCost="728.247" EstNetCost="0.000" EstProcTime="0.816" EstRowCount="150058"/>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+      <PlanStep QCFParallelKind="Sequential" QCFStepKind="SR" QCFStepNum="9" StepLev1Num="9" StepText="9) We do an all-AMPs RETRIEVE step from Spool 6 (Last Use) by way of an all-rows scan into Spool 1 (group_amps), which is built locally on the AMPs. Then we do a SORT to order Spool 1 by the sort key in spool field1 (TPCH.lineitem.L_ORDERKEY, SUM(TPCH.lineitem.L_EXTENDEDPRICE * (1 - TPCH.lineitem.L_DISCOUNT ))). The size of Spool 1 is estimated with no confidence to be 150,058 rows (6,152,378 bytes). The estimated time for this step is 1.17 seconds. -> The contents of Spool 1 are sent back to the user as the result of statement 1. The total estimated time is 1 minute and 11 seconds." TriggerType="None">
+        <SourceAccess AccessPosition="1" SyncScanEligible="false">
+          <SpoolRef Ref="SPOOL6"/>
+          <PPIAccess TotalParts="0"/>
+          <CPInfo NumCombinedPartitions="0" NumContexts="0" NumOfColPartsReferences="0"/>
+        </SourceAccess>
+        <TargetStore Cached="true" GeogInfo="Local">
+          <SpoolRef Ref="SPOOL1"/>
+          <SortKey SortKind="Field1"/>
+        </TargetStore>
+        <OptStepEst EstCPUCost="125.369" EstHRCost="0.000" EstIOCost="1047.523" EstNetCost="0.000" EstProcTime="1.173" EstRowCount="150058"/>
+        <AmpStepUsage QCFAmpUsage="All"/>
+      </PlanStep>
+    </Plan>
+    <Configuration NumAMPs="2" NumNodes="1" NumPEs="1" PENum="16383" ReleaseInfo="14.00.00.01" SystemName="tdexpress" VersionInfo="14.00.00.01">
+      <TLE CostProfileName="T2_TD13_0_LINUX64"/>
+    </Configuration>
+    <User UserID="00000100" UserName="DBC"/>
+  </Query>
+
 </QryPlanXML>

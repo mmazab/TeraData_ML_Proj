@@ -1,6 +1,8 @@
 CSUpd,Numeric_Flag
+CIX,OrderBy
 Index,IndexFlag
 Index,UniqueFlag
+Index,OrderBy
 Plan,CacheFlag
 SourceAccess,SyncScanEligible
 StepDetails,NoWaitFlag

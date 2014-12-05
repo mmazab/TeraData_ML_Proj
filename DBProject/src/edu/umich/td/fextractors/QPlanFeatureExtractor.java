@@ -2,7 +2,7 @@ package edu.umich.td.fextractors;
 
 /*
  * Author: Noy Schaal
- * Last updated: Nov 2014
+ * Last updated: December 2014
  */
 
 import java.io.FileInputStream;

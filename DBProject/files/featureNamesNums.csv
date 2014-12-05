@@ -29,7 +29,6 @@ AmpStepUsage,MinAmpCPUTime
 AmpStepUsage,MinAmpIO
 AmpStepUsage,MinAMPSpool
 AmpStepUsage,NumofActiveAMPs
-AmpStepUsage,QCFAmpUsage
 AmpStepUsage,RowsWComprColumns
 AmpStepUsage,SpoolUsage
 AmpStepUsage,StepRowsReturned
@@ -38,14 +37,10 @@ CIX,IndexName
 CIX,IndexNum
 CIX,Named
 CIX,Unique
-CIX,OrderBy
 Configuration,NumAMPs
 Configuration,NumNodes
 Configuration,NumPEs
 Configuration,PENum
-Configuration,CostProfileName
-Configuration,CostTargetSysName
-Configuration,SampleTargetSysName
 CSUpd,All-Amp_Sampling_Estimate
 CSUpd,Max_Interval_Size
 CSUpd,One-Amp_Sampling_Estimate
@@ -59,7 +54,6 @@ Field,RangeAccessFrequency
 Field,ValueAccessFrequency
 Index,IndexName
 Index,IndexNum
-Index,OrderBy
 OptPlanEst,EstProcTime
 OptPlanEst,EstResultRows
 OptStepEst,EstCPUCost
@@ -71,14 +65,11 @@ OptStepEst,EstRowCount
 Plan,NumSteps
 Plan,NumStepsInpar
 Plan,NumStepswPar
-PlanStep,QCFParallelKind
 PlanStep,QCFParallelStepNum
-PlanStep,QCFStepKind
 PlanStep,QCFStepNum
 PlanStep,StepLev1Num
 PlanStep,StepLev2Num
 PlanStep,StepWD
-PlanStep,TriggerType
 PPIAccess,EstQualifyingParts
 PPIAccess,QualifyingParts
 PPIAccess,TemporalPartType
