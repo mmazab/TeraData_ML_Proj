@@ -1,0 +1,9 @@
+Index,IndexType
+PlanStep,QCFStepKind
+Predicate,PredicateKind
+Relation,Confidence
+SortKey,SortKind
+StepDetails,LockLevel
+TargetStore,Confidence
+TargetStore,GeogInfo
+AmpStepUsage,QCFAmpUsage

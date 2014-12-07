@@ -1,0 +1,39 @@
+IndexType: 
+-- P (Nonpartitioned Primary)
+-- Q (Partitioned Primary)
+-- S (Secondary)
+-- J (join index)
+-- N (hash index)
+-- K (primary key)
+-- U (unique constraint)
+-- V (value ordered secondary)
+-- H (hash ordered ALL covering secondary)
+-- O (valued ordered ALL covering secondary)
+-- I (ordering column of a composite secondary index)
+-- M (Multi-column statistics)
+-- D (Derived column partition statistics)
+-- 1 (field1 column of a join or hash index)
+-- 2 (field2 column of a join or hash index) 
+
+StepName:
+Edt
+Ctb
+INS
+MRG
+SAT
+MLK
+CTRts
+
+Confidence:
+N
+L
+
+RelationKind:
+P
+
+SortKind:
+RHS
+F1S
+
+JoinType:
+I
