@@ -12,6 +12,8 @@ public class Query {
 	public int inclusionCnt = 0;
 	public long ioCnt = 0;
 	public long cpuCnt = 0;
+	public String fileName ="";
+	public String parentFolder = "";
 	
 	public Query(String text) {
 		this.qText = text;
