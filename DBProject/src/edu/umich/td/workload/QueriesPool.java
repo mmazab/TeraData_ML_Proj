@@ -103,6 +103,36 @@ public class QueriesPool {
 				}
 			}
 		}
+		return QueriesList;
+	}
+
+	public ArrayList<Query> ReadLabeledQueriesFromDirectory(String directory) {
+		File queriesFolder = new File(directory);
+		File[] qDirectories = queriesFolder.listFiles();
+
+		for (int i = 0; i < qDirectories.length; i++) {
+			if (qDirectories[i].isDirectory()) {
+				File[] queries = qDirectories[i].listFiles();
+				String dictName = qDirectories[i].getName();
+				for (int j = 0; j < queries.length; j++) {
+					if (queries[j].getName().endsWith(".sql")) {
+						String query = ReadFileToString(queries[j].getAbsolutePath());
+						String[] labels = query.split("\n");
+						long cpu = Long.parseLong(labels[0]);
+						long io = Long.parseLong(labels[1]);
+						query = query.replaceFirst("[0-9]+\n", " ");
+						query = query.replaceFirst("[0-9]+\n", " ");
+						Query q = new Query(query);
+						q.fileName = queries[j].getName();
+						q.parentFolder = dictName;
+						q.cpuCnt = cpu;
+						q.ioCnt = io;
+
+						QueriesList.add(q);
+					}
+				}
+			}
+		}
 
 		return QueriesList;
 	}
@@ -112,37 +142,31 @@ public class QueriesPool {
 	 * low I/O 3- low CPU, High I/O 4- low CPU, low I/O
 	 */
 	public void ClusterQueries() {
-		ArrayList<Integer> cpuConsmp = ReadStatsFiles("files/cpu.txt");
-		ArrayList<Integer> ioConsmp = ReadStatsFiles("files/io.txt");
 		long cpuSum = 0, ioSum = 0;
-
-		if (ioConsmp.size() == cpuConsmp.size()) {
-			for (int i = 0; i < ioConsmp.size(); i++) {
-				cpuSum += cpuConsmp.get(i);
-				ioSum += ioConsmp.get(i);
-			}
+		for (int i = 0; i < QueriesList.size(); i++) {
+			cpuSum += QueriesList.get(i).cpuCnt;
+			ioSum += QueriesList.get(i).ioCnt;
 		}
-		IO_AVG = ioSum / (ioConsmp.size());
-		CPU_AVG = cpuSum / (cpuConsmp.size());
+		IO_AVG = ioSum / QueriesList.size();
+		CPU_AVG = cpuSum / QueriesList.size();
 
-		if (ioConsmp.size() == cpuConsmp.size() && ioConsmp.size() <= QueriesList.size()) {
-			for (int i = 0; i < ioConsmp.size(); i++) {
-				QueriesList.get(i).cpuCnt = cpuConsmp.get(i);
-				QueriesList.get(i).ioCnt = ioConsmp.get(i);
-				// 1- High CPU, High I/O
-				if (cpuConsmp.get(i) > CPU_AVG && ioConsmp.get(i) > IO_AVG) {
-					hCPU_hIOList.add(QueriesList.get(i));
-				}// 2- High CPU, low I/O
-				else if (cpuConsmp.get(i) > CPU_AVG && ioConsmp.get(i) <= IO_AVG) {
-					hCPU_lIOList.add(QueriesList.get(i));
-				}// 3- low CPU, High I/O
-				else if (cpuConsmp.get(i) <= CPU_AVG && ioConsmp.get(i) > IO_AVG) {
-					lCPU_hIOList.add(QueriesList.get(i));
-				}// 4- low CPU, low I/O
-				else if (cpuConsmp.get(i) <= CPU_AVG && ioConsmp.get(i) <= IO_AVG) {
-					lCPU_lIOList.add(QueriesList.get(i));
-				}
+		for (int i = 0; i < QueriesList.size(); i++) {
+			long cpu = QueriesList.get(i).cpuCnt; 
+			long io = QueriesList.get(i).ioCnt;
+			// 1- High CPU, High I/O
+			if (cpu > CPU_AVG && io  > IO_AVG) {
+				hCPU_hIOList.add(QueriesList.get(i));
+			}// 2- High CPU, low I/O
+			else if (cpu > CPU_AVG && io <= IO_AVG) {
+				hCPU_lIOList.add(QueriesList.get(i));
+			}// 3- low CPU, High I/O
+			else if (cpu <= CPU_AVG && io > IO_AVG) {
+				lCPU_hIOList.add(QueriesList.get(i));
+			}// 4- low CPU, low I/O
+			else if (cpu <= CPU_AVG && io <= IO_AVG) {
+				lCPU_lIOList.add(QueriesList.get(i));
 			}
+
 		}
 	}
 
@@ -168,18 +192,15 @@ public class QueriesPool {
 		return null;
 
 	}
-	
-	
-	public void WriteFilesToDirectory(){
-		String targetDirectory = "/home/mahmoud/Documents/DB/labeledQueries";
-		
-		for(Query q: QueriesList){
-			new File(targetDirectory+"/"+q.parentFolder).mkdirs();
-			String text = q.cpuCnt+"\n" + q.ioCnt +"\n" + q.qText ;
-			WriteQueryToFile(targetDirectory+"/"+q.parentFolder+"/"+q.fileName, text, false);
+
+	public void WriteFilesToDirectory(String targetDirectory) {
+		for (Query q : QueriesList) {
+			new File(targetDirectory + "/" + q.parentFolder).mkdirs();
+			String text = q.cpuCnt + "\n" + q.ioCnt + "\n" + q.qText;
+			WriteQueryToFile(targetDirectory + "/" + q.parentFolder + "/" + q.fileName, text, false);
 		}
 	}
-	
+
 	public void WriteQueryToFile(String fileName, String text, boolean append) {
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(fileName), append));

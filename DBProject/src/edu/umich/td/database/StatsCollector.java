@@ -14,7 +14,7 @@ public class StatsCollector {
 
 	public static String sUser = "dbc";
 	public static String sPassword = "eecs58414";
-	public static String url = "jdbc:teradata://ec2-54-224-213-223.compute-1.amazonaws.com";
+	public static String url = "jdbc:teradata://ec2-54-84-4-187.compute-1.amazonaws.com";
 	
 	public static Map<String, Integer> tables;
 	

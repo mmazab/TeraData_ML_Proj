@@ -20,7 +20,7 @@ public class TdDatabase {
 	public static String sUser = "mazab";
 	public static String sPassword = "eecs584";
 	
-	public static String url = "jdbc:teradata://ec2-54-224-213-223.compute-1.amazonaws.com";
+	public static String url = "jdbc:teradata://ec2-54-84-4-187.compute-1.amazonaws.com"; 
 	
 	
 	
@@ -34,12 +34,16 @@ public class TdDatabase {
 			}
 			// Attempting to connect to Teradata
 			Connection con = DriverManager.getConnection(url, sUser, sPassword);
+			
+			
 			return con;
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			return null;
 		}
 	}
+	
+	
 
 	public static void CloseConnection(Connection con) {
 		// Close the connection
@@ -53,8 +57,6 @@ public class TdDatabase {
 
 	public static boolean ExecuteQuery(Connection con, String query) {
 		try {
-			// Loading the Teradata JDBC driver
-
 			try {
 				// Creating a statement object from an active connection.
 				Statement stmt = con.createStatement();
@@ -63,9 +65,6 @@ public class TdDatabase {
 					System.out.println("Executing query...");
 					stmt.executeQuery(query);
 					System.out.println("Waiting...");
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
 				} finally {
 					// Close the statement
 					stmt.close();
