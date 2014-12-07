@@ -1,5 +1,10 @@
 package edu.umich.td.fextractors;
 
+/*Author: Mahmoud Azab
+ * Last Updated: November 2014
+ * FeatureCategory.java
+ */
+
 public enum FeatureCategory {
 	QUERYTEXT("QueryText"), 
 	QUERYPLAN("QueryPlan"), 

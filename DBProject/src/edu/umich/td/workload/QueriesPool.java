@@ -6,9 +6,14 @@ package edu.umich.td.workload;
  */
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class QueriesPool {
@@ -54,6 +59,52 @@ public class QueriesPool {
 		}
 		System.err.println("******************** END of file ****************** ");
 		return null;
+	}
+
+	public String ReadFileToString(String fileName) {
+		String strLine;
+		try {
+			FileInputStream fstream = new FileInputStream(fileName);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			StringBuilder sbuild = new StringBuilder();
+			while ((strLine = br.readLine()) != null) {
+				if (!strLine.isEmpty()) {
+					sbuild.append(strLine + "\n");
+				}
+			}
+			in.close();
+			return sbuild.toString();
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+		System.err.println("******************** END of file ****************** ");
+		return null;
+	}
+
+	public ArrayList<Query> ReadQueriesFromDirectory(String directory) {
+
+		File queriesFolder = new File(directory);
+
+		File[] qDirectories = queriesFolder.listFiles();
+
+		for (int i = 0; i < qDirectories.length; i++) {
+			if (qDirectories[i].isDirectory()) {
+				File[] queries = qDirectories[i].listFiles();
+				String dictName = qDirectories[i].getName();
+				for (int j = 0; j < queries.length; j++) {
+					if (queries[j].getName().endsWith(".sql")) {
+						String query = ReadFileToString(queries[j].getAbsolutePath());
+						Query q = new Query(query);
+						q.fileName = queries[j].getName();
+						q.parentFolder = dictName;
+						QueriesList.add(q);
+					}
+				}
+			}
+		}
+
+		return QueriesList;
 	}
 
 	/*
@@ -116,6 +167,27 @@ public class QueriesPool {
 		System.err.println("******************** END of file ****************** ");
 		return null;
 
+	}
+	
+	
+	public void WriteFilesToDirectory(){
+		String targetDirectory = "/home/mahmoud/Documents/DB/labeledQueries";
+		
+		for(Query q: QueriesList){
+			new File(targetDirectory+"/"+q.parentFolder).mkdirs();
+			String text = q.cpuCnt+"\n" + q.ioCnt +"\n" + q.qText ;
+			WriteQueryToFile(targetDirectory+"/"+q.parentFolder+"/"+q.fileName, text, false);
+		}
+	}
+	
+	public void WriteQueryToFile(String fileName, String text, boolean append) {
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(fileName), append));
+			bw.write(text);
+			bw.close();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 	public void ResetInclusionCount() {

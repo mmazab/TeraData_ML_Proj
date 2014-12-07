@@ -19,21 +19,29 @@ public class TdDatabase {
 	// Credentials
 	public static String sUser = "mazab";
 	public static String sPassword = "eecs584";
-	public static String url = "jdbc:teradata://ec2-54-167-248-214.compute-1.amazonaws.com";
+	
+	public static String url = "jdbc:teradata://ec2-54-224-213-223.compute-1.amazonaws.com";
 	
 	
 	
 
-	public Connection OpenConnection() {
+	public static Connection OpenConnection() {
 		try {
-			return DriverManager.getConnection(url, sUser, sPassword);
+			try {
+				Class.forName("com.teradata.jdbc.TeraDriver");
+			} catch (ClassNotFoundException e1) {
+				e1.printStackTrace();
+			}
+			// Attempting to connect to Teradata
+			Connection con = DriverManager.getConnection(url, sUser, sPassword);
+			return con;
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			return null;
 		}
 	}
 
-	public void CloseConnection(Connection con) {
+	public static void CloseConnection(Connection con) {
 		// Close the connection
 		System.out.println(" Closing connection to Teradata...");
 		try {
@@ -43,16 +51,10 @@ public class TdDatabase {
 		}
 	}
 
-	public static boolean ExecuteQuery(String query) {
+	public static boolean ExecuteQuery(Connection con, String query) {
 		try {
 			// Loading the Teradata JDBC driver
-			try {
-				Class.forName("com.teradata.jdbc.TeraDriver");
-			} catch (ClassNotFoundException e1) {
-				e1.printStackTrace();
-			}
-			// Attempting to connect to Teradata
-			Connection con = DriverManager.getConnection(url, sUser, sPassword);
+
 			try {
 				// Creating a statement object from an active connection.
 				Statement stmt = con.createStatement();
@@ -69,8 +71,7 @@ public class TdDatabase {
 					stmt.close();
 				}
 			} finally {
-				// Close the connection
-				con.close();
+				
 			}
 			return true;
 		} catch (SQLException ex) {
@@ -85,9 +86,6 @@ public class TdDatabase {
 				System.out.println(" Error code: " + ex.getErrorCode());
 				System.out.println(" SQL State: " + ex.getSQLState());
 				System.out.println(" Message: " + ex.getMessage());
-				ex.printStackTrace();
-				System.out.println();
-				ex = ex.getNextException();
 			}
 			return false;
 		}

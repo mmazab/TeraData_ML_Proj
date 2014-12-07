@@ -8,6 +8,7 @@ package edu.umich.td.controller;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.sql.Connection;
 import java.util.ArrayList;
 
 import edu.umich.td.database.*;
@@ -64,7 +65,7 @@ public class Controller {
 
 		ArrayList<Integer> failedQueries = new ArrayList<Integer>();
 		ArrayList<Long> qtimeStamps = new ArrayList<Long>();
-
+		Connection con = TdDatabase.OpenConnection();
 		for (int i = 0; i < queries.size(); i++) {
 			System.out.println("=========\tProcessing Query #" + i + "\t=========");
 			QTextFeatureExtractor qtFeatExtractor = new QTextFeatureExtractor();
@@ -73,7 +74,7 @@ public class Controller {
 			String query = queries.get(i).qText;
 			long timeStamp = System.currentTimeMillis();
 			query = query.replaceFirst("\n", "/*Q" + System.currentTimeMillis() + "*/\n");
-			boolean status = TdDatabase.ExecuteQuery(query);
+			boolean status = TdDatabase.ExecuteQuery(con, query);
 
 			// Query failed to execute properly
 			if (!status) {
@@ -108,18 +109,21 @@ public class Controller {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
+		
+		Connection statsCon =  StatsCollector.OpenConnection();
 		for (int i = 0; i < qtimeStamps.size(); i++) {
 			int[] CpuIo = { 0, 0 };
 			System.out.println("Collecting CPU and I/O usage ...");
-			CpuIo = StatsCollector.CollectCpuIO("Q" + qtimeStamps.get(i));
+			CpuIo = StatsCollector.CollectCpuIO(statsCon, "Q" + qtimeStamps.get(i));
 
 			String featuresVector = "";
 			sbuildIO.append(CpuIo[0] + "\t" + queriesFeaturesList.get(i).trim() + "\n");
 			sbuildCPU.append(CpuIo[1] + "\t" + queriesFeaturesList.get(i).trim() + "\n");
 			System.err.println("===>\t" + CpuIo[0] + "\t" + CpuIo[1] + "\t");
-
 		}
+		
+		StatsCollector.CloseConnection(statsCon);
+		TdDatabase.CloseConnection(con);
 
 		System.err.println("===> Writing I/O File ...");
 		WriteToFile("files/io.txt", sbuildIO.toString(), false);

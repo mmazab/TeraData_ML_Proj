@@ -14,23 +14,43 @@ public class StatsCollector {
 
 	public static String sUser = "dbc";
 	public static String sPassword = "eecs58414";
-	public static String url = "jdbc:teradata://ec2-23-20-169-48.compute-1.amazonaws.com";
+	public static String url = "jdbc:teradata://ec2-54-224-213-223.compute-1.amazonaws.com";
 	
 	public static Map<String, Integer> tables;
-
-	public static int[] CollectCpuIO(String query) {
-		int[] CpuIO = { 0, 0 };
-		String getData = "SELECT TotalIOCount, AMPCPUTime FROM DBC.QRYlogv WHERE QueryText LIKE '%"
-				+ query + "%' and UserName = 'MAZAB';";
+	
+	
+	public static Connection OpenConnection() {
 		try {
-			// Loading the Teradata JDBC driver
 			try {
 				Class.forName("com.teradata.jdbc.TeraDriver");
 			} catch (ClassNotFoundException e1) {
 				e1.printStackTrace();
 			}
+			// Attempting to connect to Teradata
 			Connection con = DriverManager.getConnection(url, sUser, sPassword);
+			return con;
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			return null;
+		}
+	}
 
+	public static void CloseConnection(Connection con) {
+		// Close the connection
+		System.out.println(" Closing connection to Teradata...");
+		try {
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static int[] CollectCpuIO(Connection con, String query) {
+		int[] CpuIO = { 0, 0 };
+		String getData = "SELECT AMPCPUTime, TotalIOCount FROM DBC.QRYlogv WHERE QueryText LIKE '%"
+				+ query + "%' and UserName = 'MAZAB';";
+		try {
+			// Loading the Teradata JDBC driver
 			try {
 				Statement stmt = con.createStatement();
 				System.out.println(" Statement object created. \n");
@@ -53,9 +73,8 @@ public class StatsCollector {
 					System.out.println("\n Statement object closed. \n");
 				}
 			} finally {
-				// Close the connection
-				System.out.println(" Closing connection to Teradata...");
-				con.close();
+				
+				
 			}
 			return CpuIO;
 		} catch (SQLException ex) {

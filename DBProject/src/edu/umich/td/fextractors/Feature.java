@@ -15,6 +15,6 @@ public class Feature {
 	
 	  @Override
 	  public String toString() {
-		  return category.getFeatureCategory() + ": (" + featureName + ", " + featureValue + ")";
+		  return "(" + featureName + ", " + featureValue + ")";
 	  }
 }
