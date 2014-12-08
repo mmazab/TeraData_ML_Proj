@@ -151,10 +151,10 @@ public class QueriesPool {
 		CPU_AVG = cpuSum / QueriesList.size();
 
 		for (int i = 0; i < QueriesList.size(); i++) {
-			long cpu = QueriesList.get(i).cpuCnt; 
+			long cpu = QueriesList.get(i).cpuCnt;
 			long io = QueriesList.get(i).ioCnt;
 			// 1- High CPU, High I/O
-			if (cpu > CPU_AVG && io  > IO_AVG) {
+			if (cpu > CPU_AVG && io > IO_AVG) {
 				hCPU_hIOList.add(QueriesList.get(i));
 			}// 2- High CPU, low I/O
 			else if (cpu > CPU_AVG && io <= IO_AVG) {
@@ -195,9 +195,13 @@ public class QueriesPool {
 
 	public void WriteFilesToDirectory(String targetDirectory) {
 		for (Query q : QueriesList) {
-			new File(targetDirectory + "/" + q.parentFolder).mkdirs();
-			String text = q.cpuCnt + "\n" + q.ioCnt + "\n" + q.qText;
-			WriteQueryToFile(targetDirectory + "/" + q.parentFolder + "/" + q.fileName, text, false);
+			if (q.status && (q.cpuCnt+q.ioCnt != 0)) {
+				new File(targetDirectory + "/" + q.parentFolder).mkdirs();
+				String text = q.cpuCnt + "\n" + q.ioCnt + "\n" + q.qText;
+				WriteQueryToFile(targetDirectory + "/" + q.parentFolder + "/" + q.fileName, text, false);
+				System.err.println("Just wrote back " + targetDirectory + "/" + q.parentFolder + "/" + q.fileName+"\t io " + q.ioCnt +"\t cpu" + q.cpuCnt);
+				q.written = true;
+			}
 		}
 	}
 

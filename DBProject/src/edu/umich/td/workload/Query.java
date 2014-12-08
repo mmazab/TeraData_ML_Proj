@@ -14,7 +14,8 @@ public class Query {
 	public long cpuCnt = 0;
 	public String fileName ="";
 	public String parentFolder = "";
-	
+	public boolean written = false;
+	public boolean status = true;
 	public Query(String text) {
 		this.qText = text;
 	}

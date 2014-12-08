@@ -14,7 +14,7 @@ public class StatsCollector {
 
 	public static String sUser = "dbc";
 	public static String sPassword = "eecs58414";
-	public static String url = "jdbc:teradata://ec2-54-84-4-187.compute-1.amazonaws.com";
+	public static String url = "jdbc:teradata://ec2-54-174-132-214.compute-1.amazonaws.com";
 	
 	public static Map<String, Integer> tables;
 	
@@ -53,7 +53,7 @@ public class StatsCollector {
 			// Loading the Teradata JDBC driver
 			try {
 				Statement stmt = con.createStatement();
-				System.out.println(" Statement object created. \n");
+				//System.out.println(" Statement object created. \n");
 
 				try {
 					ResultSet rs = stmt.executeQuery(getData);
@@ -66,11 +66,11 @@ public class StatsCollector {
 						CpuIO[0] = rs.getInt(1);
 						CpuIO[1] = rs.getInt(2);
 					}
-					System.out.println("\n " + rowCount + " row(s) returned.");
+					//System.out.println("\n " + rowCount + " row(s) returned.");
 				} finally {
 					// Close the statement
 					stmt.close();
-					System.out.println("\n Statement object closed. \n");
+					//System.out.println("\n Statement object closed. \n");
 				}
 			} finally {
 				

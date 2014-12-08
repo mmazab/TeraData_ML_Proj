@@ -16,7 +16,7 @@ public class WorkLoadGenerator {
 	int samplesCnt = 0;
 	
 	//The generated Workload Queries
-	ArrayList<ArrayList<Query>> wlQueries;
+	public ArrayList<ArrayList<Query>> wlQueries;
 
 	// Random variable to select which pool to grab from and how many queries to be grabbed
 	static Random whichPool = new Random();
@@ -39,7 +39,7 @@ public class WorkLoadGenerator {
 		//The target number of samples that the WorkloadGenerator will generate
 		this.samplesCnt = samplesCnt;
 		//Special case when the batch size equals 1, we generate all the queries to run sequentially
-		if (wlCNT == 1)
+		if (wlCNT == 0)
 			GenerateAll();
 		else {
 			for (int i = 0; i < samplesCnt; i++) {

@@ -37,7 +37,7 @@ public class Controller {
 		ArrayList<String> queriesFeaturesList = new ArrayList<String>();
 		ArrayList<Feature> featuresList = new ArrayList<Feature>();
 
-		ArrayList<Query> queries = qpool.ReadQueriesFromFile("files/queries.sql");
+		ArrayList<Query> queries = qpool.ReadQueriesFromDirectory("/home/mahmoud/Documents/DB/Data/labeledQueries");
 		qpool.ClusterQueries();
 
 		int qTotalCount = qpool.TotalQueriesCount();
@@ -47,26 +47,35 @@ public class Controller {
 		int samplesCount = 0;
 		int batchSize = 0;
 
-		qpool.ResetInclusionCount();
-		Query.Max_COUNT = 6;
-		samplesCount = 100;
-		batchSize = 5;
-
-		if (samplesCount * batchSize <= qTotalCount * Query.Max_COUNT) {
-			workload.Generate(batchSize, samplesCount);
+		for (int j = 0; j < 5; j++) {
 			qpool.ResetInclusionCount();
-		} else {
-			System.err
-					.printf("The queries pool of size %d cannot generate %d samples with size %d using maximum repetition count of %d\n",
-							qTotalCount, samplesCount, batchSize, Query.Max_COUNT);
-			System.err.printf("Please increase the maximum repetition count to at least %d\n",
-					(int) Math.ceil((double) ((samplesCount * batchSize) / qTotalCount)) + 1);
+			Query.Max_COUNT = 10 - j;
+			samplesCount = 200 - j*35 ;
+			batchSize = 5 * j;
+			if (samplesCount * batchSize <= qTotalCount * Query.Max_COUNT) {
+				workload.Generate(batchSize, samplesCount);
+			} else {
+				System.err
+						.printf("The queries pool of size %d cannot generate %d samples with size %d using maximum repetition count of %d\n",
+								qTotalCount, samplesCount, batchSize, Query.Max_COUNT);
+				System.err.printf("Please increase the maximum repetition count to at least %d\n",
+						(int) Math.ceil((double) ((samplesCount * batchSize) / qTotalCount)) + 1);
+			}
 		}
+		
+		
+		
+		
+		
+		
+		
 
 		ArrayList<Integer> failedQueries = new ArrayList<Integer>();
 		ArrayList<Long> qtimeStamps = new ArrayList<Long>();
 		Connection con = TdDatabase.OpenConnection();
-		for (int i = 0; i < queries.size(); i++) {
+		for (int i = 0; i < workload.wlQueries.size(); i++) {
+			
+			
 			System.out.println("=========\tProcessing Query #" + i + "\t=========");
 			QTextFeatureExtractor qtFeatExtractor = new QTextFeatureExtractor();
 			featuresList = qtFeatExtractor.ExtractFeatures(queries.get(i));
@@ -109,8 +118,8 @@ public class Controller {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-		Connection statsCon =  StatsCollector.OpenConnection();
+
+		Connection statsCon = StatsCollector.OpenConnection();
 		for (int i = 0; i < qtimeStamps.size(); i++) {
 			int[] CpuIo = { 0, 0 };
 			System.out.println("Collecting CPU and I/O usage ...");
@@ -121,7 +130,7 @@ public class Controller {
 			sbuildCPU.append(CpuIo[1] + "\t" + queriesFeaturesList.get(i).trim() + "\n");
 			System.err.println("===>\t" + CpuIo[0] + "\t" + CpuIo[1] + "\t");
 		}
-		
+
 		StatsCollector.CloseConnection(statsCon);
 		TdDatabase.CloseConnection(con);
 

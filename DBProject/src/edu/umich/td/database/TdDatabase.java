@@ -19,8 +19,7 @@ public class TdDatabase {
 	// Credentials
 	public static String sUser = "mazab";
 	public static String sPassword = "eecs584";
-	
-	public static String url = "jdbc:teradata://ec2-54-84-4-187.compute-1.amazonaws.com"; 
+	public static String url = "jdbc:teradata://ec2-54-174-132-214.compute-1.amazonaws.com"; 
 	
 	
 	
@@ -80,12 +79,12 @@ public class TdDatabase {
 			// together.
 			System.out.println();
 			System.out.println("*** SQLException caught ***");
-
-			while (ex != null) {
-				System.out.println(" Error code: " + ex.getErrorCode());
-				System.out.println(" SQL State: " + ex.getSQLState());
-				System.out.println(" Message: " + ex.getMessage());
-			}
+			System.out.println(ex.getMessage());
+			//while (ex != null) {
+			//	System.out.println(" Error code: " + ex.getErrorCode());
+			//	System.out.println(" SQL State: " + ex.getSQLState());
+			//	System.out.println(" Message: " + ex.getMessage());
+			//}
 			return false;
 		}
 	}
