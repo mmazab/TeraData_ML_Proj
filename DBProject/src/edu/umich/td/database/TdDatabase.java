@@ -19,7 +19,7 @@ public class TdDatabase {
 	// Credentials
 	public static String sUser = "mazab";
 	public static String sPassword = "eecs584";
-	public static String url = "jdbc:teradata://ec2-54-174-132-214.compute-1.amazonaws.com"; 
+	public static String url = "jdbc:teradata://ec2-54-165-236-239.compute-1.amazonaws.com"; 
 	
 	
 	

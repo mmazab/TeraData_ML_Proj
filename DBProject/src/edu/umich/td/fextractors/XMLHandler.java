@@ -164,14 +164,14 @@ class XMLHandler extends DefaultHandler {
 	  public void startElement(String uri, String localName, 
 	                           String qName, Attributes attributes) 
 	                           throws SAXException {
-
-			
+		  
+		  
+				
 		  int length = attributes.getLength();
 		  for (int i=0; i<length; i++) {
 			  
 				String name = attributes.getQName(i);
 				String value = attributes.getValue(i);
-				System.out.println(name+", "+value);
 				boolean bresult = false;
 				float fresult = 0;
 
@@ -217,4 +217,6 @@ class XMLHandler extends DefaultHandler {
 				} // end for
 		  }
 	  }
+	  
+
 }

@@ -16,6 +16,8 @@ public class StagingPhase {
 		// 1- Load queries into the query pool from the files
 		// 2- Run all the queries sequentially to detect each queries behavior
 
+		Connection con = TdDatabase.OpenConnection();
+		try{
 		QueriesPool qpool = new QueriesPool();
 
 		ArrayList<Query> queries = qpool.ReadQueriesFromDirectory("/home/mahmoud/Documents/DB/Data/TrainingData");
@@ -24,24 +26,26 @@ public class StagingPhase {
 
 		ArrayList<Integer> failedQueries = new ArrayList<Integer>();
 		ArrayList<Long> qtimeStamps = new ArrayList<Long>();
-		Connection con = TdDatabase.OpenConnection();
+		
 
-		boolean status = TdDatabase.ExecuteQuery(con, "database TPCH;");
+		boolean status = true;
 
 		for (int i = 0; i < queries.size(); i++) {
 			// Write queries to file after processing 100 queries
 
-			if (i % 10 == 0 || !status) {
-				try {
-					Thread.sleep(15000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			if (i % 100 == 0 || !status) {
+				//try {
+					//Thread.sleep(15000);
+				//} catch (InterruptedException e) {
+				//	e.printStackTrace();
+				//}
 				Connection statsCon = StatsCollector.OpenConnection();
 				for (int j = 0; j < qtimeStamps.size(); j++) {
+					System.err.println(qtimeStamps.get(j));
 					if (!queries.get(j).written && (queries.get(j).ioCnt + queries.get(j).cpuCnt > 0)) {
 						int[] CpuIo = { 0, 0 };
 						System.out.println("Collecting CPU and I/O usage ...");
+						
 						CpuIo = StatsCollector.CollectCpuIO(statsCon, "Q" + qtimeStamps.get(j));
 						System.err.println("===>\t" + CpuIo[0] + "\t" + CpuIo[1] + "\t");
 						queries.get(j).cpuCnt = CpuIo[0];
@@ -80,7 +84,7 @@ public class StagingPhase {
 		}
 
 		try {
-			Thread.sleep(15000);
+			Thread.sleep(60000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -101,6 +105,12 @@ public class StagingPhase {
 
 		qpool.WriteFilesToDirectory("/home/mahmoud/Documents/DB/Data/labeledQueries");
 		// qpool.WriteFilesToDirectory("/root/Documents/DB/Data/labeledQueries");
+	}
+		finally {
+			//StatsCollector.CloseConnection(statsCon);
+			TdDatabase.CloseConnection(con);
+			System.err.println("Closing connections");
+		}
 	}
 
 }

@@ -87,6 +87,7 @@ public class QueriesPool {
 		File queriesFolder = new File(directory);
 
 		File[] qDirectories = queriesFolder.listFiles();
+		
 
 		for (int i = 0; i < qDirectories.length; i++) {
 			if (qDirectories[i].isDirectory()) {

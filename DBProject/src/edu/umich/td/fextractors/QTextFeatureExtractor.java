@@ -26,6 +26,8 @@ public class QTextFeatureExtractor {
 	String tmpFileName = "files/tmp.feat";
 
 	// read query text features vector from file
+	
+	
 	ArrayList<Feature> ReadFeatFromFile() {
 		String strLine;
 		ArrayList<Feature> featuresList = new ArrayList<Feature>();
@@ -70,15 +72,18 @@ public class QTextFeatureExtractor {
 
 			while ((ln = ms.readLine()) != null)
 				System.out.println(ln);
-			System.out.print("Extracting features ... ");
+			//System.out.print("Extracting features ... ");
 			p.waitFor();
 
-			System.out.println("Done");
+			//System.out.println("Done");
 			ArrayList<Feature> features = ReadFeatFromFile();
 
+			
+			
+			
 			ArrayList<Feature> tableCountsFeatures = ExtractTextFeatures(query, "");
-			//features.addAll(tableCountsFeatures);
-
+			features.addAll(tableCountsFeatures);
+			
 			return features;
 		} catch (Exception e) {
 			return null;

@@ -53,21 +53,33 @@ public class QPlanFeatureExtractor {
 				// Creating a statement object from an active connection.
 				Statement stmt = con.createStatement();
 				try {
-					ResultSet rs = stmt.executeQuery(query);
-					while (rs.next()) {
-						plan = rs.getString(1);
+					
+					// This handles multiple result sets
+					boolean results = stmt.execute(query);
+					
+					while(results){
+					
+						ResultSet rs = stmt.getResultSet();
+						while (rs.next()) {
+							plan = plan + rs.getString(1);
+						}
+						rs.close();
+						
+						// Check for more results
+						results = stmt.getMoreResults();
+					
 					}
-					System.out.println("Waiting...");
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
+					// ----------------------------------
+							
+					//System.out.println(plan);
+				}finally {
 					// Close the statement
 					stmt.close();
 				}
 			} finally {
 				
 			}
+
 			return plan;
 		} catch (SQLException ex) {
 			// A SQLException was generated. Catch it and display
@@ -85,18 +97,5 @@ public class QPlanFeatureExtractor {
 			return plan;
 		}
 	}
-	
-	// MAIN
-	public static void main(String[] args) throws Exception {
-		
-		Connection con = TdDatabase.OpenConnection();
-		String query = "select * from nation;";
-		QPlanFeatureExtractor planex = new QPlanFeatureExtractor();
-	    ArrayList<Feature> features = planex.getFeaturesFromPlan(con, query);
-
-	    for ( Feature fe : features){
-	      System.out.println(fe);
-	    }
-	  }
 }
 

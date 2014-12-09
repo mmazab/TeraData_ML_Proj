@@ -20,5 +20,16 @@ public class Query {
 		this.qText = text;
 	}
 	
+	
+	public ArrayList<Feature> CloneFeatures(){
+		ArrayList<Feature> flist = new ArrayList<Feature>();
+		for(Feature f: featureVector){
+			flist.add(f.clone());
+		}
+		
+		return flist;
+		
+	}
+	
 
 }
