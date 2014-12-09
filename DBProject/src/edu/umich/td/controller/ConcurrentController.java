@@ -10,6 +10,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,9 +28,11 @@ import edu.umich.td.workload.QueriesPool;
 import edu.umich.td.workload.Query;
 import edu.umich.td.workload.WorkLoadGenerator;
 
-public class Controller {
+public class ConcurrentController {
 
 	public static HashMap<Long, DataInstance> timeStampsToQueryFeatures = new HashMap<Long, DataInstance>();
+
+	static int currentConcurrentWorkLoad = 0;
 
 	public static void main(String[] args) {
 		// 1- Load queries into the query pool from the files
@@ -43,71 +47,99 @@ public class Controller {
 
 		int Temp = 0;
 		int limiter = 0;
-		int batch_size = 1;
+		int batch_size = 5;
 		WorkLoadGenerator workloads = new WorkLoadGenerator();
-		workloads.ReadWorkLoadFromDirectory("/home/mahmoud/Documents/DB/Data/Workloads/TrainingWorkloads", batch_size);
+		workloads.ReadWorkLoadFromDirectory("/home/mahmoud/Documents/DB/Data/Workloads/TestWorkloads", batch_size);
 
 		Connection con = TdDatabase.OpenConnection();
 
+		//ConnectionPool pool = new ConnectionPool(batch_size);
+
 		int K = 0;
 		for (ArrayList<Query> queries : WorkLoadGenerator.wlQueries) {
-
-			for (Query q : queries) {
-				System.out.println(K++ + ".");
-				QTextFeatureExtractor qtFeatExtractor = new QTextFeatureExtractor();
-				QPlanFeatureExtractor qtPlanFeatExtractor = new QPlanFeatureExtractor();
-				q.featureVector.clear();
-				q.featureVector.addAll(qtFeatExtractor.ExtractFeatures(q));
-				try {
-					q.featureVector.addAll(qtPlanFeatExtractor.getFeaturesFromPlan(con, q.qText));
-				} catch (Exception e) {
-					System.err.println(q.qText);
-					System.err.println(e.getMessage());
-				}
-			}
-		}
-		int Counter = 0;
-		for (ArrayList<Query> queries : WorkLoadGenerator.wlQueries) {
+			System.out.println((K++) + ".");
 
 			if (queries.size() == batch_size) {
 				for (Query q : queries) {
-					System.out.println("=========\tProcessing Query #" + Counter++ + "\t=========>  " + q.parentFolder
-							+ "/" + q.fileName + "\t features: " + q.featureVector.size());
-
-					String query = q.qText;
-
-					long timeStamp = System.currentTimeMillis();
-					query = query.replaceFirst("\n", "/*Q" + timeStamp + "*/\n");
-					boolean status = TdDatabase.ExecuteQuery(con, query);
-
-					// Query failed to execute properly
-					if (!status) {
-						q.status = false;
-					} else {
-						// Add time stamp to the query so that we can
-						// retrieve
-						// it
-						// later
-						DataInstance data = new DataInstance();
-						data.features = q.CloneFeatures();
-						timeStampsToQueryFeatures.put(timeStamp, data);
-
+					QTextFeatureExtractor qtFeatExtractor = new QTextFeatureExtractor();
+					QPlanFeatureExtractor qtPlanFeatExtractor = new QPlanFeatureExtractor();
+					q.featureVector.clear();
+					q.featureVector.addAll(qtFeatExtractor.ExtractFeatures(q));
+					try {
+						q.featureVector.addAll(qtPlanFeatExtractor.getFeaturesFromPlan(con, q.qText));
+					} catch (Exception e) {
+						System.err.println(q.qText);
+						System.err.println(e.getMessage());
 					}
+				}
+			}
 
+		}
+
+		for (ArrayList<Query> queries : WorkLoadGenerator.wlQueries) {
+			if (queries.size() == batch_size) {
+				try {
+					Thread.sleep(15000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				for (Query q : queries) {
+					System.out.println("=========\tProcessing Query #" + K + "\t=========>  " + q.parentFolder + "/"
+							+ q.fileName + "\t features: " + q.featureVector.size());
+
+					for (int M = 0; M < batch_size; M++) {
+						Thread t = new Thread(new Runnable() {
+							public void run() {
+								// Connection connect =
+								// ConnectionPool.GetConnection();
+								Connection connect;
+								try {
+									connect = DriverManager.getConnection(TdDatabase.url, TdDatabase.sUser,
+											TdDatabase.sPassword);
+
+									for (Query q : WorkLoadGenerator.wlQueries.get(currentConcurrentWorkLoad)) {
+										if (!q.blocked) {
+											q.blocked = true;
+											String query = q.qText;
+											long timeStamp = System.currentTimeMillis();
+											query = query.replaceFirst("\n", "/*Q" + timeStamp + "*/\n");
+											boolean status = TdDatabase.ExecuteQuery(connect, query);
+											DataInstance data = new DataInstance();
+											data.features = q.CloneFeatures();
+											timeStampsToQueryFeatures.put(timeStamp, data);
+										}
+									}
+									connect.close();
+								} catch (SQLException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+
+						});
+						t.start();
+						
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 				}
 			} else
 				limiter++;
-
 		}
+
 		try {
 			Thread.sleep(15000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		System.err.println("Writing Back");
-
+		
 		WriteDataIntoFile(batch_size, "test");
-
 
 		TdDatabase.CloseConnection(con);
 
@@ -128,19 +160,8 @@ public class Controller {
 		StringBuilder sbuild = new StringBuilder();
 		sbuild.append(samplesSize + ",");
 		for (Feature feature : f) {
-
-			if (category == FeatureCategory.QUERYPLAN) {
-
-				if (feature.category == FeatureCategory.WORKLOAD || feature.category == FeatureCategory.SYSTEMSTATUS
-						|| feature.category == FeatureCategory.QUERYTEXT
-						|| feature.category == FeatureCategory.QUERYPLAN)
-					sbuild.append(feature.featureValue + ",");
-
-			} else {
-
-				if (feature.category != category)
-					sbuild.append(feature.featureValue + ",");
-			}
+			if (feature.category != category)
+				sbuild.append(feature.featureValue + ",");
 		}
 
 		sbuild.append(C);
@@ -195,17 +216,17 @@ public class Controller {
 			it.remove();
 		}
 
-		WriteToFile("files/Train/IO_" + samplesSize + "_ALL." + type, cpuSbuild_ALL.toString(), true);
-		WriteToFile("files/Train/CPU_" + samplesSize + "_ALL." + type, ioSbuild_ALL.toString(), true);
+		WriteToFile("files/Test/IO_" + samplesSize + "_ALL." + type, cpuSbuild_ALL.toString(), true);
+		WriteToFile("files/Test/CPU_" + samplesSize + "_ALL." + type, ioSbuild_ALL.toString(), true);
 
-		WriteToFile("files/Train/IO_" + samplesSize + "_TEXt." + type, cpuSbuild_ALL.toString(), true);
-		WriteToFile("files/Train/CPU_" + samplesSize + "_TEXT." + type, ioSbuild_ALL.toString(), true);
+		WriteToFile("files/Test/IO_" + samplesSize + "_TEXt." + type, cpuSbuild_ALL.toString(), true);
+		WriteToFile("files/Test/CPU_" + samplesSize + "_TEXT." + type, ioSbuild_ALL.toString(), true);
 
-		WriteToFile("files/Train/IO_" + samplesSize + "_PLAN." + type, cpuSbuild_ALL.toString(), true);
-		WriteToFile("files/Train/CPU_" + samplesSize + "_PLAN." + type, ioSbuild_ALL.toString(), true);
+		WriteToFile("files/Test/IO_" + samplesSize + "_PLAN." + type, cpuSbuild_ALL.toString(), true);
+		WriteToFile("files/Test/CPU_" + samplesSize + "_PLAN." + type, ioSbuild_ALL.toString(), true);
 
-		WriteToFile("files/Train/IO_" + samplesSize + "_WL." + type, cpuSbuild_ALL.toString(), true);
-		WriteToFile("files/Train/CPU_" + samplesSize + "_WL." + type, ioSbuild_ALL.toString(), true);
+		WriteToFile("files/Test/IO_" + samplesSize + "_WL." + type, cpuSbuild_ALL.toString(), true);
+		WriteToFile("files/Test/CPU_" + samplesSize + "_WL." + type, ioSbuild_ALL.toString(), true);
 
 		StatsCollector.CloseConnection(statsCon);
 		timeStampsToQueryFeatures.clear();

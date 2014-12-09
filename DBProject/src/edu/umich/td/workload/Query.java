@@ -16,6 +16,7 @@ public class Query {
 	public String parentFolder = "";
 	public boolean written = false;
 	public boolean status = true;
+	public boolean blocked = false;
 	public Query(String text) {
 		this.qText = text;
 	}

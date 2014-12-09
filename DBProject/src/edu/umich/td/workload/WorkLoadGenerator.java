@@ -23,7 +23,7 @@ public class WorkLoadGenerator {
 	int samplesCnt = 0;
 	
 	//The generated Workload Queries
-	public ArrayList<ArrayList<Query>> wlQueries;
+	public static ArrayList<ArrayList<Query>> wlQueries;
 
 	// Random variable to select which pool to grab from and how many queries to be grabbed
 	static Random whichPool = new Random();
@@ -182,8 +182,33 @@ public class WorkLoadGenerator {
 				wlQueries.add(concurrentQueriesList);
 			}
 		}
+	}
+	
+	
+	public void ReadWorkLoadFromDirectory(String directory,int size) {
+		File queriesFolder = new File(directory);
+		File[] qDirectories = queriesFolder.listFiles();
 
-		
+		for (int i = 0; i < qDirectories.length; i++) {
+			if (qDirectories[i].isDirectory()) {
+				File[] queries = qDirectories[i].listFiles();
+				String dictName = qDirectories[i].getName();
+				ArrayList<Query> concurrentQueriesList = new ArrayList<Query>();
+				for (int j = 0; j < queries.length; j++) {
+					
+					if (queries[j].getName().endsWith(".sql")) {
+						String query = ReadFileToString(queries[j].getAbsolutePath());
+						Query q = new Query(query);
+						q.fileName = queries[j].getName();
+						q.parentFolder = dictName;
+						concurrentQueriesList.add(q);
+					}
+				}
+				
+				if(concurrentQueriesList.size() == size)
+					wlQueries.add(concurrentQueriesList);
+			}
+		}
 	}
 	
 	public void WriteWorkloadsToDisk(String targetDirectory){
